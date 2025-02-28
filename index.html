@@ -69,6 +69,7 @@
     <script src="scenes/InventoryScene.js"></script>
     <script src="scenes/MapScene.js"></script>
     <script src="scenes/BootScene.js"></script>
+    <script src="scenes/UIScene.js"></script>
     
     <!-- Main Game Script -->
     <script src="game.js"></script>
@@ -113,13 +114,17 @@
     
     <!-- Service Worker Registration -->
     <script>
+        // Регистрация Service Worker для оффлайн-режима
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('Service Worker зарегистрирован:', registration.scope);
+            window.addEventListener('load', function() {
+                // Получаем базовый путь для GitHub Pages
+                const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+                
+                navigator.serviceWorker.register(basePath + 'sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker зарегистрирован успешно:', registration.scope);
                     })
-                    .catch(error => {
+                    .catch(function(error) {
                         console.log('Ошибка регистрации Service Worker:', error);
                     });
             });

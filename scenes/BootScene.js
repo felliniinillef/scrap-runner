@@ -1,4 +1,5 @@
-class BootScene extends Phaser.Scene {
+// Определение сцены загрузки
+window.BootScene = class BootScene extends Phaser.Scene {
     constructor() {
         super('BootScene');
     }

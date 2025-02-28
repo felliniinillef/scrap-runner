@@ -103,10 +103,11 @@ class MainMenuScene extends Phaser.Scene {
         optionsButton.setInteractive({ useHandCursor: true });
         creditsButton.setInteractive({ useHandCursor: true });
         
-        // Button hover effects
+        // Add hover effects
         startButton.on('pointerover', () => {
             startButton.setStyle({ fill: '#ff0' });
         });
+        
         startButton.on('pointerout', () => {
             startButton.setStyle({ fill: '#0ff' });
         });
@@ -114,6 +115,7 @@ class MainMenuScene extends Phaser.Scene {
         optionsButton.on('pointerover', () => {
             optionsButton.setStyle({ fill: '#ff0' });
         });
+        
         optionsButton.on('pointerout', () => {
             optionsButton.setStyle({ fill: '#0ff' });
         });
@@ -121,14 +123,52 @@ class MainMenuScene extends Phaser.Scene {
         creditsButton.on('pointerover', () => {
             creditsButton.setStyle({ fill: '#ff0' });
         });
+        
         creditsButton.on('pointerout', () => {
             creditsButton.setStyle({ fill: '#0ff' });
         });
         
-        // Button click events
+        // Add click handlers
         startButton.on('pointerdown', () => {
-            this.sound.play('button_click');
+            // Play button click sound if available
+            try {
+                if (this.cache.audio.exists('button_click')) {
+                    this.sound.play('button_click');
+                }
+            } catch (error) {
+                console.error('Error playing button click sound:', error);
+            }
+            
+            // Start the game
             this.scene.start('GameScene');
+        });
+        
+        optionsButton.on('pointerdown', () => {
+            // Play button click sound if available
+            try {
+                if (this.cache.audio.exists('button_click')) {
+                    this.sound.play('button_click');
+                }
+            } catch (error) {
+                console.error('Error playing button click sound:', error);
+            }
+            
+            // Show options (placeholder)
+            console.log('Options button clicked');
+        });
+        
+        creditsButton.on('pointerdown', () => {
+            // Play button click sound if available
+            try {
+                if (this.cache.audio.exists('button_click')) {
+                    this.sound.play('button_click');
+                }
+            } catch (error) {
+                console.error('Error playing button click sound:', error);
+            }
+            
+            // Show credits (placeholder)
+            console.log('Credits button clicked');
         });
         
         // Background animation
@@ -141,10 +181,17 @@ class MainMenuScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
         
-        // Play menu music
+        // Play background music
+        this.playBackgroundMusic();
+    }
+    
+    playBackgroundMusic() {
         try {
             if (this.cache.audio.exists('menu_music')) {
-                this.menuMusic = this.sound.add('menu_music', { loop: true, volume: 0.5 });
+                this.menuMusic = this.sound.add('menu_music', {
+                    loop: true,
+                    volume: 0.5
+                });
                 this.menuMusic.play();
             } else {
                 console.log('Menu music asset not found');

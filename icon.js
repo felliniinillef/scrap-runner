@@ -1,9 +1,11 @@
-// Скрипт для создания иконки игры
-window.onload = function() {
+// Скрипт для создания иконки
+document.addEventListener('DOMContentLoaded', function() {
     // Создаем канвас для иконки
     const canvas = document.createElement('canvas');
     canvas.width = 192;
     canvas.height = 192;
+    
+    // Получаем контекст с атрибутом willReadFrequently
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     // Фон
@@ -29,41 +31,43 @@ window.onload = function() {
     ctx.textBaseline = 'middle';
     ctx.fillText('S', 96, 96);
     
-    // Преобразуем канвас в изображение
-    const dataUrl = canvas.toDataURL('image/png');
+    // Создаем ссылку на иконку для манифеста
+    const iconUrl = canvas.toDataURL('image/png');
     
-    // Создаем ссылку на favicon
-    const link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/png';
-    link.href = dataUrl;
-    document.head.appendChild(link);
+    // Создаем физический файл icon.png
+    const link = document.createElement('a');
+    link.download = 'icon.png';
+    link.href = iconUrl;
     
-    // Создаем элемент изображения для icon.png
-    const iconImg = document.createElement('img');
-    iconImg.src = dataUrl;
-    iconImg.style.display = 'none';
-    document.body.appendChild(iconImg);
+    // Добавляем кнопку для скачивания иконки
+    const iconButton = document.createElement('button');
+    iconButton.textContent = 'Скачать иконку';
+    iconButton.style.position = 'fixed';
+    iconButton.style.bottom = '10px';
+    iconButton.style.right = '10px';
+    iconButton.style.zIndex = '9999';
+    iconButton.style.padding = '10px';
+    iconButton.style.backgroundColor = '#00ffff';
+    iconButton.style.color = '#000033';
+    iconButton.style.border = 'none';
+    iconButton.style.borderRadius = '5px';
+    iconButton.style.cursor = 'pointer';
     
-    // Сохраняем как base64 в localStorage
-    localStorage.setItem('scrapRunnerIcon', dataUrl);
+    iconButton.addEventListener('click', function() {
+        link.click();
+    });
     
-    // Обновляем манифест
-    const manifestLink = document.querySelector('link[rel="manifest"]');
-    if (manifestLink) {
-        fetch(manifestLink.href)
-            .then(response => response.json())
-            .then(manifest => {
-                manifest.icons = [{
-                    src: dataUrl,
-                    sizes: "192x192",
-                    type: "image/png"
-                }];
-                
-                const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-                const manifestURL = URL.createObjectURL(manifestBlob);
-                manifestLink.href = manifestURL;
-            })
-            .catch(error => console.error('Ошибка обновления манифеста:', error));
-    }
-};
+    document.body.appendChild(iconButton);
+    
+    // Создаем иконку для манифеста
+    const iconLink = document.createElement('link');
+    iconLink.rel = 'icon';
+    iconLink.href = iconUrl;
+    document.head.appendChild(iconLink);
+    
+    // Добавляем иконку для Apple устройств
+    const appleIconLink = document.createElement('link');
+    appleIconLink.rel = 'apple-touch-icon';
+    appleIconLink.href = iconUrl;
+    document.head.appendChild(appleIconLink);
+});
