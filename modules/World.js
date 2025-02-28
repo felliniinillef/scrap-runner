@@ -31,7 +31,11 @@ class World {
         this.platforms.create(450, 200, 'ground');
         
         // Add collision between player and platforms
-        this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
+        if (this.scene.player && this.scene.player.sprite) {
+            this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
+        } else {
+            console.warn('Player sprite not available for collision setup');
+        }
         
         console.log('World platforms created');
     }

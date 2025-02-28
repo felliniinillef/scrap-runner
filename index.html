@@ -74,44 +74,6 @@
     <!-- Main Game Script -->
     <script src="game.js"></script>
     
-    <!-- Game initialization -->
-    <script>
-        // Game configuration
-        const config = {
-            type: Phaser.AUTO,
-            width: 800,
-            height: 600,
-            parent: 'game-container',
-            backgroundColor: '#000033',
-            pixelArt: true,
-            physics: {
-                default: 'arcade',
-                arcade: {
-                    gravity: { y: 300 },
-                    debug: false
-                }
-            },
-            scene: [BootScene, MainMenuScene, GameScene, UIScene],
-            // Добавляем атрибут willReadFrequently для Canvas
-            render: {
-                antialias: false,
-                pixelArt: true,
-                roundPixels: true,
-                powerPreference: 'high-performance',
-                batchSize: 2048,
-                clearBeforeRender: true,
-                premultipliedAlpha: false,
-                failIfMajorPerformanceCaveat: false,
-                desynchronized: true,
-                autoResize: true,
-                willReadFrequently: true
-            }
-        };
-
-        // Create game instance
-        const game = new Phaser.Game(config);
-    </script>
-    
     <!-- Service Worker Registration -->
     <script>
         // Регистрация Service Worker для оффлайн-режима

@@ -6,6 +6,7 @@ window.onload = function() {
         width: 800,
         height: 600,
         parent: 'game-container',
+        backgroundColor: '#000033',
         pixelArt: true,
         physics: {
             default: 'arcade',
@@ -15,12 +16,27 @@ window.onload = function() {
             }
         },
         scene: [
+            BootScene,
             MainMenuScene,
             GameScene,
             TerminalScene,
             InventoryScene,
             MapScene
-        ]
+        ],
+        // Добавляем атрибут willReadFrequently для Canvas
+        render: {
+            antialias: false,
+            pixelArt: true,
+            roundPixels: true,
+            powerPreference: 'high-performance',
+            batchSize: 2048,
+            clearBeforeRender: true,
+            premultipliedAlpha: false,
+            failIfMajorPerformanceCaveat: false,
+            desynchronized: true,
+            autoResize: true,
+            willReadFrequently: true
+        }
     };
 
     // Create Phaser game instance

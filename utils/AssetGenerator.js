@@ -16,7 +16,7 @@ class AssetGenerator {
     
     createDefaultPlayerTexture() {
         if (!this.scene.textures.exists('player')) {
-            const graphics = this.scene.add.graphics();
+            const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Body
             graphics.fillStyle(0x00ffff, 1);
@@ -41,7 +41,7 @@ class AssetGenerator {
     
     createDefaultResourceTextures() {
         if (!this.scene.textures.exists('resource')) {
-            const graphics = this.scene.add.graphics();
+            const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Create a simple gear-like shape
             graphics.fillStyle(0xaaaaaa, 1);
@@ -59,7 +59,7 @@ class AssetGenerator {
     
     createDefaultPlatformTexture() {
         if (!this.scene.textures.exists('ground')) {
-            const graphics = this.scene.add.graphics();
+            const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Create a simple platform
             graphics.fillStyle(0x555555, 1);
@@ -81,7 +81,7 @@ class AssetGenerator {
     
     createDefaultBackgroundTexture() {
         if (!this.scene.textures.exists('background')) {
-            const graphics = this.scene.add.graphics();
+            const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Create a gradient background
             graphics.fillGradientStyle(0x000022, 0x000022, 0x000044, 0x000044, 1);
@@ -185,7 +185,7 @@ class AssetGenerator {
     
     createDefaultButtonTextures() {
         if (!this.scene.textures.exists('button')) {
-            const graphics = this.scene.add.graphics();
+            const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Normal button
             graphics.fillStyle(0x003333, 1);
