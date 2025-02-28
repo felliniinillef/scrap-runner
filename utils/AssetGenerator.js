@@ -83,12 +83,12 @@ class AssetGenerator {
         if (!this.scene.textures.exists('background')) {
             const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
-            // Create a gradient background
-            const gradient = graphics.createLinearGradient(0, 0, 0, 600);
-            gradient.addColorStop(0, '#87CEEB');    // Sky blue
-            gradient.addColorStop(1, '#E0F8FF');    // Light blue
-            
-            graphics.fillStyle(gradient);
+            // Create a gradient background using Phaser's gradient fill
+            graphics.fillGradientStyle(
+                0x87CEEB, 0x87CEEB,  // Top colors (sky blue)
+                0xE0F8FF, 0xE0F8FF,  // Bottom colors (light blue)
+                1  // Alpha
+            );
             graphics.fillRect(0, 0, 800, 600);
             
             // Add some cloud-like shapes
@@ -113,17 +113,22 @@ class AssetGenerator {
             graphics.fillStyle(0x2C3E50, 1);  // Dark blue-gray
             graphics.fillRect(0, 0, 300, 100);
             
-            // Logo text
-            const text = graphics.text('SCRAP RUNNER', 20, 40, {
+            // Logo text using Phaser's text rendering
+            const text = this.scene.add.text(20, 40, 'SCRAP RUNNER', {
                 font: 'bold 48px Arial',
-                fill: '#FFFFFF'
+                color: '#FFFFFF'
             });
             
-            // Generate the texture
-            graphics.generateTexture('logo', 300, 100);
-            graphics.destroy();
+            // Generate the texture using snapshot method
+            this.scene.renderer.snapshot((image) => {
+                if (!this.scene.textures.exists('logo')) {
+                    this.scene.textures.addImage('logo', image);
+                    console.log('Created default logo texture');
+                }
+                text.destroy();
+            });
             
-            console.log('Created default logo texture');
+            graphics.destroy();
         }
     }
     
@@ -131,12 +136,12 @@ class AssetGenerator {
         if (!this.scene.textures.exists('menu_background')) {
             const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
-            // Create a gradient background
-            const gradient = graphics.createLinearGradient(0, 0, 0, 600);
-            gradient.addColorStop(0, '#34495E');    // Dark blue-gray
-            gradient.addColorStop(1, '#2C3E50');    // Slightly lighter blue-gray
-            
-            graphics.fillStyle(gradient);
+            // Create a gradient background using Phaser's gradient fill
+            graphics.fillGradientStyle(
+                0x34495E, 0x34495E,  // Top colors (dark blue-gray)
+                0x2C3E50, 0x2C3E50,  // Bottom colors (slightly lighter blue-gray)
+                1  // Alpha
+            );
             graphics.fillRect(0, 0, 800, 600);
             
             // Add some geometric shapes for depth
@@ -166,18 +171,22 @@ class AssetGenerator {
                 graphics.fillStyle(style.color, 1);
                 graphics.fillRoundedRect(0, 0, 200, 50, 10);
                 
-                // Button text
-                graphics.fillStyle(0xFFFFFF, 1);
-                const text = graphics.text(style.text, 50, 15, {
+                // Button text using Phaser's text rendering
+                const text = this.scene.add.text(50, 15, style.text, {
                     font: 'bold 24px Arial',
-                    fill: '#FFFFFF'
+                    color: '#FFFFFF'
                 });
                 
-                // Generate the texture
-                graphics.generateTexture(style.name, 200, 50);
-                graphics.destroy();
+                // Generate the texture using snapshot method
+                this.scene.renderer.snapshot((image) => {
+                    if (!this.scene.textures.exists(style.name)) {
+                        this.scene.textures.addImage(style.name, image);
+                        console.log(`Created default ${style.name} texture`);
+                    }
+                    text.destroy();
+                });
                 
-                console.log(`Created default ${style.name} texture`);
+                graphics.destroy();
             }
         });
     }
