@@ -39,6 +39,9 @@ class GameScene extends Phaser.Scene {
             return;
         }
 
+        // Set up world physics
+        this.physics.world.setBounds(0, 0, this.game.config.width, this.game.config.height);
+
         // Create ground first
         this.groundGroup = this.physics.add.staticGroup();
         const groundWidth = this.game.config.width;
@@ -63,6 +66,9 @@ class GameScene extends Phaser.Scene {
             if (this.player.sprite && this.groundGroup) {
                 this.physics.add.collider(this.player.sprite, this.groundGroup);
             }
+
+            // Ensure player stays within world bounds
+            this.player.sprite.setCollideWorldBounds(true);
         } catch (error) {
             console.error('Player creation failed:', error);
             this.scene.restart();

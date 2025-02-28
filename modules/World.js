@@ -106,10 +106,11 @@ class World {
             } else {
                 resource.setTint(0x55ff55); // Green
             }
+            
+            // Ensure resources collide with platforms and world bounds
+            this.scene.physics.add.collider(resource, this.platforms);
+            resource.setCollideWorldBounds(true);
         }
-        
-        // Add collision between resources and platforms
-        this.scene.physics.add.collider(this.resources, this.platforms);
         
         // Add overlap between player and resources for collection
         this.scene.physics.add.overlap(

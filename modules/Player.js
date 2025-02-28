@@ -15,7 +15,7 @@ class Player {
         this.energy = 100;
         this.maxEnergy = 100;
         this.isJumping = false;
-        this.canJump = true;
+        this.jumpCooldown = 0;
         
         // Set up animations
         if (scene.anims.get('player_run') === undefined) {
@@ -56,6 +56,11 @@ class Player {
             return;
         }
 
+        // Decrement jump cooldown
+        if (this.jumpCooldown > 0) {
+            this.jumpCooldown--;
+        }
+
         // Handle horizontal movement
         if (this.cursors.left.isDown) {
             this.sprite.setVelocityX(-this.speed);
@@ -79,15 +84,12 @@ class Player {
             }
         }
         
-        // Improved jumping mechanics
-        if (this.cursors.up.isDown) {
-            if (this.sprite.body.onFloor() && this.canJump) {
+        // Improved jumping mechanics with cooldown
+        if (this.cursors.up.isDown && this.jumpCooldown === 0) {
+            if (this.sprite.body.onFloor()) {
                 this.jump();
-                this.canJump = false;
+                this.jumpCooldown = 10;  // Prevent rapid jumping
             }
-        } else {
-            // Allow jumping again when up key is released
-            this.canJump = true;
         }
         
         // Jumping and falling animations
