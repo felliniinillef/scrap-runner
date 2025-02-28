@@ -1,4 +1,4 @@
-class GameCore {
+export default class GameCore {
     constructor(game) {
         this.game = game;
         this.score = 0;
