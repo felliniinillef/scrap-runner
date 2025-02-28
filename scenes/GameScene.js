@@ -30,11 +30,44 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        // Ensure all assets are loaded
+        if (!this.textures.exists('ground') || 
+            !this.textures.exists('player_run') || 
+            !this.textures.exists('resource')) {
+            console.error('Critical assets missing. Reloading scene.');
+            this.scene.restart();
+            return;
+        }
+
+        // Create ground first
+        this.groundGroup = this.physics.add.staticGroup();
+        const groundWidth = this.game.config.width;
+        const groundHeight = 64;
+        const groundY = this.game.config.height - groundHeight/2;
+        
+        // Create multiple ground segments
+        for (let x = 0; x < groundWidth; x += 256) {
+            const ground = this.groundGroup.create(x, groundY, 'ground');
+            ground.setScale(1);
+            ground.refreshBody();
+        }
+
         // Initialize the world
         this.world = new World(this);
         
-        // Create the player
-        this.player = new Player(this, 100, 450);
+        // Create the player with safety checks
+        try {
+            this.player = new Player(this, 100, 450);
+            
+            // Add collision between player and ground
+            if (this.player.sprite && this.groundGroup) {
+                this.physics.add.collider(this.player.sprite, this.groundGroup);
+            }
+        } catch (error) {
+            console.error('Player creation failed:', error);
+            this.scene.restart();
+            return;
+        }
         
         // Create UI elements
         this.ui = new UI(this);
@@ -60,9 +93,13 @@ class GameScene extends Phaser.Scene {
             this.scene.launch('MapScene');
         });
         
-        // Play game music
-        this.gameMusic = this.sound.add('game_music', { loop: true, volume: 0.3 });
-        this.gameMusic.play();
+        // Play game music with safety check
+        try {
+            this.gameMusic = this.sound.add('game_music', { loop: true, volume: 0.3 });
+            this.gameMusic.play();
+        } catch (error) {
+            console.warn('Music playback failed:', error);
+        }
     }
     
     update() {

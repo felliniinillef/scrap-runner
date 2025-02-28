@@ -58,16 +58,32 @@ class World {
 
         this.resources = this.scene.physics.add.group();
         
+        // Define platform positions for resource spawning
+        const platformPositions = [
+            { x: 400, y: 580 },   // Main ground
+            { x: 600, y: 450 },   // Platform 1
+            { x: 50, y: 350 },    // Platform 2
+            { x: 750, y: 300 },   // Platform 3
+            { x: 450, y: 200 }    // Platform 4
+        ];
+        
         // Create resources at random positions on platforms
         for (let i = 0; i < count; i++) {
-            // Create a resource at a random x position
-            const x = Phaser.Math.Between(50, 750);
+            // Select a random platform
+            const platform = platformPositions[Phaser.Math.Between(0, platformPositions.length - 1)];
+            
+            // Spawn resource within platform's horizontal bounds
+            const x = Phaser.Math.Between(
+                platform.x - 100, 
+                platform.x + 100
+            );
+            
             // Resource types: metal, plastic, electronics
             const resourceTypes = ['metal', 'plastic', 'electronics'];
             const resourceType = resourceTypes[Phaser.Math.Between(0, 2)];
             
-            const resource = this.resources.create(x, 0, 'resource');
-            resource.setBounceY(0.4);
+            const resource = this.resources.create(x, platform.y - 50, 'resource');
+            resource.setBounceY(0.2);
             resource.setData('type', resourceType);
             resource.setData('value', Phaser.Math.Between(5, 15));
             
