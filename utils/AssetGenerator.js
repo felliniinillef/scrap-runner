@@ -217,7 +217,7 @@ class AssetGenerator {
                     alpha: true 
                 });
                 
-                // Rounded rectangle using path
+                // Custom rounded rectangle drawing
                 context.beginPath();
                 context.moveTo(10, 0);
                 context.lineTo(190, 0);
@@ -228,6 +228,7 @@ class AssetGenerator {
                 context.quadraticCurveTo(0, 50, 0, 40);
                 context.lineTo(0, 10);
                 context.quadraticCurveTo(0, 0, 10, 0);
+                context.closePath();
                 
                 // Fill with color
                 context.fillStyle = `#${style.color.toString(16).padStart(6, '0')}`;
@@ -235,7 +236,7 @@ class AssetGenerator {
                 
                 // Add text
                 context.fillStyle = '#FFFFFF';
-                context.font = '16px Arial';
+                context.font = 'bold 16px Arial';
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
                 context.fillText(style.text, 100, 25);
