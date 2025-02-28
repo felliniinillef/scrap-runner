@@ -14,104 +14,143 @@ class AssetGenerator {
         this.createDefaultAudioFiles();
     }
     
+    createDefaultTexture(key, width = 256, height = 256, fillStyle = 0x000000) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        
+        const context = canvas.getContext('2d', { 
+            willReadFrequently: true,  // Explicitly set this for performance
+            alpha: true 
+        });
+        
+        context.fillStyle = `#${fillStyle.toString(16).padStart(6, '0')}`;
+        context.fillRect(0, 0, width, height);
+        
+        return this.scene.textures.addCanvas(key, canvas);
+    }
+    
     createDefaultPlayerTexture() {
         if (!this.scene.textures.exists('player')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 48;
+            
+            const context = canvas.getContext('2d', { 
+                willReadFrequently: true,  // Explicitly set this for performance
+                alpha: true 
+            });
             
             // Body
-            graphics.fillStyle(0x00ffff, 1);
-            graphics.fillRect(0, 0, 32, 48);
+            context.fillStyle = '#00ffff';
+            context.fillRect(0, 0, 32, 48);
             
             // Head
-            graphics.fillStyle(0xffffff, 1);
-            graphics.fillRect(4, 4, 24, 16);
+            context.fillStyle = '#ffffff';
+            context.fillRect(4, 4, 24, 16);
             
             // Eyes
-            graphics.fillStyle(0x000000, 1);
-            graphics.fillRect(10, 10, 4, 4);
-            graphics.fillRect(18, 10, 4, 4);
+            context.fillStyle = '#000000';
+            context.fillRect(10, 10, 4, 4);
+            context.fillRect(18, 10, 4, 4);
             
-            // Generate the texture
-            graphics.generateTexture('player', 32, 48);
-            graphics.destroy();
-            
+            this.scene.textures.addCanvas('player', canvas);
             console.log('Created default player texture');
         }
     }
     
     createDefaultResourceTextures() {
         if (!this.scene.textures.exists('resource')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
+            const canvas = document.createElement('canvas');
+            canvas.width = 24;
+            canvas.height = 24;
+            
+            const context = canvas.getContext('2d', { 
+                willReadFrequently: true,  // Explicitly set this for performance
+                alpha: true 
+            });
             
             // Create a simple gear-like shape
-            graphics.fillStyle(0xaaaaaa, 1);
-            graphics.fillCircle(12, 12, 10);
-            graphics.fillStyle(0x000000, 1);
-            graphics.fillCircle(12, 12, 4);
+            context.fillStyle = '#aaaaaa';
+            context.fillCircle(12, 12, 10);
+            context.fillStyle = '#000000';
+            context.fillCircle(12, 12, 4);
             
-            // Generate the texture
-            graphics.generateTexture('resource', 24, 24);
-            graphics.destroy();
-            
+            this.scene.textures.addCanvas('resource', canvas);
             console.log('Created default resource texture');
         }
     }
     
     createDefaultPlatformTexture() {
         if (!this.scene.textures.exists('ground')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            
+            const context = canvas.getContext('2d', { 
+                willReadFrequently: true,  // Explicitly set this for performance
+                alpha: true 
+            });
             
             // Ground texture
-            graphics.fillStyle(0x8B4513, 1);  // Brown color
-            graphics.fillRect(0, 0, 256, 64);
+            context.fillStyle = '#8B4513';  // Brown color
+            context.fillRect(0, 0, 256, 64);
             
             // Add some texture details
-            graphics.fillStyle(0x5D3A1A, 1);  // Darker brown
+            context.fillStyle = '#5D3A1A';  // Darker brown
             for (let i = 0; i < 256; i += 20) {
-                graphics.fillRect(i, 0, 10, 64);
+                context.fillRect(i, 0, 10, 64);
             }
             
-            // Generate the texture
-            graphics.generateTexture('ground', 256, 64);
-            graphics.destroy();
-            
+            this.scene.textures.addCanvas('ground', canvas);
             console.log('Created default ground texture');
         }
     }
     
     createDefaultBackgroundTexture() {
         if (!this.scene.textures.exists('background')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            
+            const context = canvas.getContext('2d', { 
+                willReadFrequently: true,  // Explicitly set this for performance
+                alpha: true 
+            });
             
             // Create a gradient background using Phaser's gradient fill
-            graphics.fillGradientStyle(
-                0x87CEEB, 0x87CEEB,  // Top colors (sky blue)
-                0xE0F8FF, 0xE0F8FF,  // Bottom colors (light blue)
-                1  // Alpha
-            );
-            graphics.fillRect(0, 0, 800, 600);
+            const gradient = context.createLinearGradient(0, 0, 0, 600);
+            gradient.addColorStop(0, '#87CEEB');  // Top colors (sky blue)
+            gradient.addColorStop(1, '#E0F8FF');  // Bottom colors (light blue)
+            
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 800, 600);
             
             // Add some cloud-like shapes
-            graphics.fillStyle('rgba(255, 255, 255, 0.7)');
-            graphics.fillCircle(200, 100, 50);
-            graphics.fillCircle(250, 120, 60);
-            graphics.fillCircle(600, 150, 40);
+            context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            context.fillCircle(200, 100, 50);
+            context.fillCircle(250, 120, 60);
+            context.fillCircle(600, 150, 40);
             
-            // Generate the texture
-            graphics.generateTexture('background', 800, 600);
-            graphics.destroy();
-            
+            this.scene.textures.addCanvas('background', canvas);
             console.log('Created default background texture');
         }
     }
     
     createDefaultLogoTexture() {
         if (!this.scene.textures.exists('logo')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
+            const canvas = document.createElement('canvas');
+            canvas.width = 300;
+            canvas.height = 100;
+            
+            const context = canvas.getContext('2d', { 
+                willReadFrequently: true,  // Explicitly set this for performance
+                alpha: true 
+            });
             
             // Logo background
-            graphics.fillStyle(0x2C3E50, 1);  // Dark blue-gray
-            graphics.fillRect(0, 0, 300, 100);
+            context.fillStyle = '#2C3E50';  // Dark blue-gray
+            context.fillRect(0, 0, 300, 100);
             
             // Logo text using Phaser's text rendering
             const text = this.scene.add.text(20, 40, 'SCRAP RUNNER', {
@@ -128,30 +167,34 @@ class AssetGenerator {
                 text.destroy();
             });
             
-            graphics.destroy();
+            context.clearRect(0, 0, canvas.width, canvas.height);
         }
     }
     
     createDefaultMenuBackgroundTexture() {
         if (!this.scene.textures.exists('menu_background')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
             
-            // Create a gradient background using Phaser's gradient fill
-            graphics.fillGradientStyle(
-                0x34495E, 0x34495E,  // Top colors (dark blue-gray)
-                0x2C3E50, 0x2C3E50,  // Bottom colors (slightly lighter blue-gray)
-                1  // Alpha
-            );
-            graphics.fillRect(0, 0, 800, 600);
+            const context = canvas.getContext('2d', { 
+                willReadFrequently: true,  // Performance optimization
+                alpha: true 
+            });
+            
+            // Create gradient background
+            const gradient = context.createLinearGradient(0, 0, 0, 600);
+            gradient.addColorStop(0, '#34495E');
+            gradient.addColorStop(1, '#2C3E50');
+            
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 800, 600);
             
             // Add some geometric shapes for depth
-            graphics.fillStyle('rgba(52, 73, 94, 0.5)');
-            graphics.fillRect(50, 50, 700, 500);
+            context.fillStyle = 'rgba(52, 73, 94, 0.5)';
+            context.fillRect(50, 50, 700, 500);
             
-            // Generate the texture
-            graphics.generateTexture('menu_background', 800, 600);
-            graphics.destroy();
-            
+            this.scene.textures.addCanvas('menu_background', canvas);
             console.log('Created default menu background texture');
         }
     }
@@ -165,11 +208,18 @@ class AssetGenerator {
         
         buttonStyles.forEach(style => {
             if (!this.scene.textures.exists(style.name)) {
-                const graphics = this.scene.add.graphics({ willReadFrequently: true });
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 50;
+                
+                const context = canvas.getContext('2d', { 
+                    willReadFrequently: true,
+                    alpha: true 
+                });
                 
                 // Button background
-                graphics.fillStyle(style.color, 1);
-                graphics.fillRoundedRect(0, 0, 200, 50, 10);
+                context.fillStyle = `#${style.color.toString(16).padStart(6, '0')}`;
+                context.fillRoundedRect(0, 0, 200, 50, 10);
                 
                 // Button text using Phaser's text rendering
                 const text = this.scene.add.text(50, 15, style.text, {
@@ -186,7 +236,7 @@ class AssetGenerator {
                     text.destroy();
                 });
                 
-                graphics.destroy();
+                context.clearRect(0, 0, canvas.width, canvas.height);
             }
         });
     }
@@ -194,5 +244,67 @@ class AssetGenerator {
     createDefaultAudioFiles() {
         // Audio file generation logic (if needed)
         console.log('Audio file generation not implemented');
+    }
+    
+    generateDefaultMapAssets() {
+        // Generate default map icons if they don't exist
+        const mapIcons = [
+            'map_player_icon', 
+            'map_base_icon', 
+            'map_resource_icon', 
+            'map_background'
+        ];
+
+        mapIcons.forEach(iconName => {
+            if (!this.scene.textures.exists(iconName)) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                
+                const context = canvas.getContext('2d', { 
+                    willReadFrequently: true,
+                    alpha: true 
+                });
+                
+                // Simple colored placeholder
+                context.fillStyle = this.getRandomColor();
+                context.fillRect(0, 0, 64, 64);
+                
+                this.scene.textures.addCanvas(iconName, canvas);
+                console.log(`Generated default ${iconName}`);
+            }
+        });
+    }
+
+    generateDefaultAudioAssets() {
+        // Generate placeholder audio files
+        const audioFiles = [
+            'map_open', 
+            'map_ping'
+        ];
+
+        audioFiles.forEach(audioName => {
+            if (!this.scene.cache.audio.exists(audioName)) {
+                // Create a silent audio buffer
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 1, audioContext.sampleRate);
+                
+                this.scene.sound.add(audioName, {
+                    buffer: buffer,
+                    loop: false
+                });
+                
+                console.log(`Generated default ${audioName} audio`);
+            }
+        });
+    }
+
+    getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 }

@@ -16,76 +16,129 @@ class MapScene extends Phaser.Scene {
     }
 
     create() {
-        // Add map background
-        this.add.image(400, 300, 'map_bg');
-        
-        // Map header
-        this.add.text(400, 80, 'WORLD MAP', { 
-            font: '28px "Courier New"', 
-            fill: '#0ff'
-        }).setOrigin(0.5);
-        
-        // Initialize map module
-        this.mapModule = new Map(this);
-        
-        // Generate and display the map
-        this.mapModule.generateMap();
-        
-        // Map controls text
-        this.add.text(400, 520, 'ZOOM: +/- | MOVE: ARROWS', { 
-            font: '16px "Courier New"', 
-            fill: '#0ff'
-        }).setOrigin(0.5);
-        
-        // Close map button
-        const closeButton = this.add.text(700, 520, 'CLOSE MAP', { 
-            font: '18px "Courier New"', 
-            fill: '#f00' 
-        }).setOrigin(0.5);
-        
-        closeButton.setInteractive({ useHandCursor: true });
-        
-        closeButton.on('pointerover', () => {
-            closeButton.setStyle({ fill: '#ff0' });
-        });
-        closeButton.on('pointerout', () => {
-            closeButton.setStyle({ fill: '#f00' });
-        });
-        
-        closeButton.on('pointerdown', () => {
-            this.sound.play('map_ping');
-            this.scene.stop();
-            this.scene.resume('GameScene');
-        });
-        
-        // Also close on ESC or M key
-        this.input.keyboard.on('keydown-ESC', () => {
-            this.scene.stop();
-            this.scene.resume('GameScene');
-        });
-        
-        this.input.keyboard.on('keydown-M', () => {
-            this.scene.stop();
-            this.scene.resume('GameScene');
-        });
-        
-        // Set up keyboard controls for map navigation
-        this.cursors = this.input.keyboard.createCursorKeys();
-        
-        // Map zoom controls
-        this.input.keyboard.on('keydown-PLUS', () => {
-            this.mapModule.zoomIn();
-        });
-        
-        this.input.keyboard.on('keydown-MINUS', () => {
-            this.mapModule.zoomOut();
-        });
-        
-        // Map open sound effect
-        this.sound.play('map_open');
-        
-        // Add map legend
-        this.createMapLegend();
+        // Generate default assets if missing
+        const assetGenerator = new AssetGenerator();
+        assetGenerator.generateDefaultMapAssets(this);
+        assetGenerator.generateDefaultAudioAssets(this);
+
+        try {
+            // Ensure map icons exist
+            const requiredIcons = [
+                'map_player_icon', 
+                'map_base_icon', 
+                'map_resource_icon', 
+                'map_background'
+            ];
+
+            requiredIcons.forEach(icon => {
+                if (!this.textures.exists(icon)) {
+                    console.warn(`Missing map icon: ${icon}. Using placeholder.`);
+                    assetGenerator.createDefaultTexture(this, icon);
+                }
+            });
+
+            // Robust audio handling
+            const requiredAudio = ['map_open', 'map_ping'];
+            requiredAudio.forEach(audioKey => {
+                if (!this.cache.audio.exists(audioKey)) {
+                    console.warn(`Missing audio: ${audioKey}. Creating silent placeholder.`);
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 1, audioContext.sampleRate);
+                    
+                    this.sound.add(audioKey, {
+                        buffer: buffer,
+                        loop: false
+                    });
+                }
+            });
+
+            // Existing map initialization logic
+            this.mapBackground = this.add.image(
+                this.game.config.width / 2, 
+                this.game.config.height / 2, 
+                'map_background'
+            );
+            this.mapBackground.setDisplaySize(this.game.config.width, this.game.config.height);
+
+            // Play map open sound with error handling
+            try {
+                this.sound.play('map_open', { volume: 0.5 });
+            } catch (audioError) {
+                console.error('Failed to play map_open sound:', audioError);
+            }
+
+            // Add map background
+            this.add.image(400, 300, 'map_bg');
+            
+            // Map header
+            this.add.text(400, 80, 'WORLD MAP', { 
+                font: '28px "Courier New"', 
+                fill: '#0ff'
+            }).setOrigin(0.5);
+            
+            // Initialize map module
+            this.mapModule = new Map(this);
+            
+            // Generate and display the map
+            this.mapModule.generateMap();
+            
+            // Map controls text
+            this.add.text(400, 520, 'ZOOM: +/- | MOVE: ARROWS', { 
+                font: '16px "Courier New"', 
+                fill: '#0ff'
+            }).setOrigin(0.5);
+            
+            // Close map button
+            const closeButton = this.add.text(700, 520, 'CLOSE MAP', { 
+                font: '18px "Courier New"', 
+                fill: '#f00' 
+            }).setOrigin(0.5);
+            
+            closeButton.setInteractive({ useHandCursor: true });
+            
+            closeButton.on('pointerover', () => {
+                closeButton.setStyle({ fill: '#ff0' });
+            });
+            closeButton.on('pointerout', () => {
+                closeButton.setStyle({ fill: '#f00' });
+            });
+            
+            closeButton.on('pointerdown', () => {
+                this.sound.play('map_ping');
+                this.scene.stop();
+                this.scene.resume('GameScene');
+            });
+            
+            // Also close on ESC or M key
+            this.input.keyboard.on('keydown-ESC', () => {
+                this.scene.stop();
+                this.scene.resume('GameScene');
+            });
+            
+            this.input.keyboard.on('keydown-M', () => {
+                this.scene.stop();
+                this.scene.resume('GameScene');
+            });
+            
+            // Set up keyboard controls for map navigation
+            this.cursors = this.input.keyboard.createCursorKeys();
+            
+            // Map zoom controls
+            this.input.keyboard.on('keydown-PLUS', () => {
+                this.mapModule.zoomIn();
+            });
+            
+            this.input.keyboard.on('keydown-MINUS', () => {
+                this.mapModule.zoomOut();
+            });
+            
+            // Add map legend
+            this.createMapLegend();
+        } catch (error) {
+            console.error('Map scene initialization failed:', error);
+            // Optionally, restart the scene or return to main menu
+            this.scene.start('MainMenuScene');
+        }
     }
     
     createMapLegend() {
