@@ -4,7 +4,7 @@ window.onload = function() {
     const canvas = document.createElement('canvas');
     canvas.width = 192;
     canvas.height = 192;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     // Фон
     ctx.fillStyle = '#000033';
@@ -39,34 +39,31 @@ window.onload = function() {
     link.href = dataUrl;
     document.head.appendChild(link);
     
-    // Сохраняем как icon.png
-    const iconImg = new Image();
+    // Создаем элемент изображения для icon.png
+    const iconImg = document.createElement('img');
     iconImg.src = dataUrl;
+    iconImg.style.display = 'none';
+    document.body.appendChild(iconImg);
+    
+    // Сохраняем как base64 в localStorage
+    localStorage.setItem('scrapRunnerIcon', dataUrl);
     
     // Обновляем манифест
-    if ('serviceWorker' in navigator) {
-        const manifestLink = document.querySelector('link[rel="manifest"]');
-        if (manifestLink) {
-            const manifest = {
-                name: "Scrap Runner",
-                short_name: "ScrapRunner",
-                start_url: "index.html",
-                display: "standalone",
-                background_color: "#000000",
-                theme_color: "#000000",
-                icons: [
-                    {
-                        src: dataUrl,
-                        sizes: "192x192",
-                        type: "image/png"
-                    }
-                ]
-            };
-            
-            // Обновляем манифест
-            const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-            const manifestURL = URL.createObjectURL(manifestBlob);
-            manifestLink.href = manifestURL;
-        }
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) {
+        fetch(manifestLink.href)
+            .then(response => response.json())
+            .then(manifest => {
+                manifest.icons = [{
+                    src: dataUrl,
+                    sizes: "192x192",
+                    type: "image/png"
+                }];
+                
+                const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+                const manifestURL = URL.createObjectURL(manifestBlob);
+                manifestLink.href = manifestURL;
+            })
+            .catch(error => console.error('Ошибка обновления манифеста:', error));
     }
 };

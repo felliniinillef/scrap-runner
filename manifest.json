@@ -1,16 +1,22 @@
 {
   "name": "Scrap Runner",
   "short_name": "ScrapRunner",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#000033",
+  "theme_color": "#000033",
   "description": "Постапокалиптическая игра о сборе ресурсов",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "orientation": "landscape",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "./",
+  "categories": ["games", "entertainment"]
 }

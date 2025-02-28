@@ -33,7 +33,7 @@ class MainMenuScene extends Phaser.Scene {
             logoGraphics.generateTexture('logo', 200, 100);
             logoGraphics.destroy();
             
-            // Добавляем текст отдельно (вместо fillText)
+            // Добавляем текст отдельно
             this.add.text(400, 200, 'SCRAP RUNNER', {
                 font: 'bold 24px "Courier New"',
                 fill: '#000000'

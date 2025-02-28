@@ -68,6 +68,7 @@
     <script src="scenes/TerminalScene.js"></script>
     <script src="scenes/InventoryScene.js"></script>
     <script src="scenes/MapScene.js"></script>
+    <script src="scenes/BootScene.js"></script>
     
     <!-- Main Game Script -->
     <script src="game.js"></script>
@@ -80,6 +81,8 @@
             width: 800,
             height: 600,
             parent: 'game-container',
+            backgroundColor: '#000033',
+            pixelArt: true,
             physics: {
                 default: 'arcade',
                 arcade: {
@@ -87,7 +90,21 @@
                     debug: false
                 }
             },
-            scene: [BootScene, MainMenuScene, GameScene, UIScene]
+            scene: [BootScene, MainMenuScene, GameScene, UIScene],
+            // Добавляем атрибут willReadFrequently для Canvas
+            render: {
+                antialias: false,
+                pixelArt: true,
+                roundPixels: true,
+                powerPreference: 'high-performance',
+                batchSize: 2048,
+                clearBeforeRender: true,
+                premultipliedAlpha: false,
+                failIfMajorPerformanceCaveat: false,
+                desynchronized: true,
+                autoResize: true,
+                willReadFrequently: true
+            }
         };
 
         // Create game instance
@@ -98,7 +115,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('Service Worker зарегистрирован:', registration.scope);
                     })

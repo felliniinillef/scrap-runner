@@ -3,37 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - File Not Found</title>
+    <title>404 - Файл не найден</title>
     <style>
         body {
             margin: 0;
             padding: 20px;
-            background-color: #000;
-            color: #0ff;
+            background-color: #000033;
+            color: #00ffff;
             font-family: 'Courier New', monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            text-align: center;
         }
         h1 {
             font-size: 36px;
             margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ffff;
         }
         p {
             font-size: 18px;
             margin-bottom: 20px;
+            max-width: 600px;
         }
         a {
-            color: #0ff;
-            text-decoration: underline;
+            color: #00ffff;
+            text-decoration: none;
+            border: 2px solid #00ffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        a:hover {
+            background-color: #00ffff;
+            color: #000033;
+        }
+        .error-code {
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #00ffff;
+        }
+        .robot {
+            font-size: 100px;
+            margin-bottom: 20px;
         }
     </style>
+    <script>
+        // Перенаправление на главную страницу через 10 секунд
+        setTimeout(function() {
+            window.location.href = './';
+        }, 10000);
+    </script>
 </head>
 <body>
-    <h1>404 - File Not Found</h1>
-    <p>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
-    <p><a href="/">Return to the game</a></p>
+    <div class="robot">🤖</div>
+    <div class="error-code">404</div>
+    <h1>Файл не найден</h1>
+    <p>Ресурс, который вы ищете, мог быть удален, переименован или временно недоступен.</p>
+    <p>Вы будете автоматически перенаправлены на главную страницу через 10 секунд.</p>
+    <a href="./">Вернуться в игру</a>
 </body>
 </html>
