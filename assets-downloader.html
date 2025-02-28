@@ -126,11 +126,14 @@
                 { name: 'logo.png', width: 400, height: 200, description: 'Логотип игры' },
                 { name: 'menu_background.png', width: 800, height: 600, description: 'Фон для меню' },
                 { name: 'player.png', width: 32, height: 48, description: 'Спрайт игрока' },
+                { name: 'player_run.png', width: 32, height: 48, description: 'Спрайт бега игрока' },
+                { name: 'player_jump.png', width: 32, height: 48, description: 'Спрайт прыжка игрока' },
                 { name: 'ground.png', width: 32, height: 32, description: 'Блок земли' },
                 { name: 'resource.png', width: 24, height: 24, description: 'Иконка ресурса' },
                 { name: 'button.png', width: 200, height: 50, description: 'Кнопка обычная' },
                 { name: 'button_hover.png', width: 200, height: 50, description: 'Кнопка при наведении' },
-                { name: 'placeholder.png', width: 64, height: 64, description: 'Изображение-заглушка' }
+                { name: 'placeholder.png', width: 64, height: 64, description: 'Изображение-заглушка' },
+                { name: 'icon.png', width: 192, height: 192, description: 'Иконка приложения' },
             ],
             audio: [
                 { name: 'menu_music.mp3', duration: '60', description: 'Музыка в меню' },
@@ -157,12 +160,12 @@
                 preview.className = 'asset-preview';
                 preview.style.position = 'relative';
                 
-                // Создаем миниатюру
+                // Создаем canvas с оптимизацией для частых операций чтения
                 const canvas = document.createElement('canvas');
                 canvas.width = asset.width;
                 canvas.height = asset.height;
-                const ctx = canvas.getContext('2d');
-                
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
                 // Рисуем превью в зависимости от типа
                 if (asset.name === 'logo.png') {
                     // Логотип
@@ -215,6 +218,46 @@
                     ctx.fillStyle = '#000000';
                     ctx.fillRect(asset.width/3, asset.height/5, asset.width/6, asset.height/10);
                     ctx.fillRect(asset.width*2/3 - asset.width/6, asset.height/5, asset.width/6, asset.height/10);
+                }
+                else if (asset.name === 'player_run.png' || asset.name === 'player_jump.png') {
+                    // Улучшенный спрайт игрока с более детальной анимацией
+                    ctx.fillStyle = '#2C3E50';  // Темно-серый фон
+                    ctx.fillRect(0, 0, asset.width, asset.height);
+                    
+                    // Основной цвет персонажа
+                    ctx.fillStyle = asset.name === 'player_run.png' ? '#3498DB' : '#E74C3C';
+                    
+                    // Тело персонажа
+                    ctx.fillRect(asset.width/4, asset.height/3, asset.width/2, asset.height/2);
+                    
+                    // Голова
+                    ctx.beginPath();
+                    ctx.arc(asset.width/2, asset.height/4, asset.width/6, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Анимация движения
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 2;
+                    
+                    if (asset.name === 'player_run.png') {
+                        // Бег: движение ног
+                        ctx.beginPath();
+                        ctx.moveTo(asset.width/3, asset.height*2/3);
+                        ctx.lineTo(asset.width/4, asset.height);
+                        ctx.moveTo(asset.width*2/3, asset.height*2/3);
+                        ctx.lineTo(asset.width*3/4, asset.height);
+                        ctx.stroke();
+                    } else {
+                        // Прыжок: расставленные руки и ноги
+                        ctx.beginPath();
+                        ctx.moveTo(asset.width/2, asset.height/2);
+                        ctx.lineTo(asset.width/4, asset.height*2/3);
+                        ctx.moveTo(asset.width/2, asset.height/2);
+                        ctx.lineTo(asset.width*3/4, asset.height*2/3);
+                        ctx.moveTo(asset.width/2, asset.height/2);
+                        ctx.lineTo(asset.width/2, asset.height);
+                        ctx.stroke();
+                    }
                 }
                 else if (asset.name === 'ground.png') {
                     // Земля
@@ -278,6 +321,30 @@
                     ctx.textAlign = 'center';
                     ctx.fillText('MISSING', asset.width/2, asset.height/2);
                     ctx.fillText('ASSET', asset.width/2, asset.height/2 + 12);
+                }
+                else if (asset.name === 'icon.png') {
+                    // Более четкий и контрастный дизайн иконки
+                    ctx.fillStyle = '#1E3A8A';  // Темно-синий цвет
+                    ctx.fillRect(0, 0, asset.width, asset.height);
+                    
+                    // Стилизованный персонаж с четкими линиями
+                    ctx.fillStyle = '#38BDF8';  // Яркий голубой
+                    ctx.beginPath();
+                    ctx.moveTo(asset.width/2, asset.height/3);
+                    ctx.lineTo(asset.width/4, asset.height*2/3);
+                    ctx.lineTo(asset.width*3/4, asset.height*2/3);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Текст с тенью для лучшей читаемости
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 5;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = `bold ${asset.width/12}px "Arial"`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText('SCRAP', asset.width/2, asset.height*4/5);
+                    ctx.fillText('RUNNER', asset.width/2, asset.height*9/10);
+                    ctx.shadowBlur = 0;
                 }
                 
                 // Уменьшаем canvas до размера превью
@@ -354,6 +421,40 @@
                         const channelData = buffer.getChannelData(0);
                         for (let i = 0; i < 2000; i++) {
                             channelData[i] = Math.sin(i * 0.1) * (1 - i / 2000);
+                        }
+                    }
+                    
+                    // Если это игровая музыка, создаем более сложный звуковой паттерн
+                    if (asset.name === 'game_music.mp3') {
+                        const channelData0 = buffer.getChannelData(0);
+                        const channelData1 = buffer.getChannelData(1);
+                        
+                        for (let i = 0; i < channelData0.length; i++) {
+                            const time = i / sampleRate;
+                            
+                            // Создаем более сложную звуковую композицию
+                            const freq1 = 220 * Math.sin(2 * Math.PI * 0.5 * time);
+                            const freq2 = 440 * Math.sin(2 * Math.PI * 0.25 * time);
+                            const freq3 = 660 * Math.sin(2 * Math.PI * 0.125 * time);
+                            const freq4 = 880 * Math.sin(2 * Math.PI * 0.0625 * time);
+                            
+                            // Огибающая с затуханием
+                            const envelope = Math.max(0, 1 - time / duration);
+                            
+                            // Смешивание частот с разными весами
+                            channelData0[i] = envelope * (
+                                freq1 * 0.3 + 
+                                freq2 * 0.2 + 
+                                freq3 * 0.1 + 
+                                freq4 * 0.05
+                            );
+                            
+                            channelData1[i] = envelope * (
+                                freq1 * 0.2 + 
+                                freq2 * 0.3 + 
+                                freq3 * 0.2 + 
+                                freq4 * 0.1
+                            );
                         }
                     }
                     

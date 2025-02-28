@@ -15,6 +15,15 @@ const BASE_URLS = [
   './404.html'
 ];
 
+// Добавляем динамические пути для ассетов
+const DYNAMIC_ASSETS = [
+  '/assets/images/player_run.png',
+  '/assets/images/player_jump.png',
+  '/assets/images/ground.png',
+  '/assets/images/resource.png',
+  '/assets/images/icon.png'
+];
+
 // Установка Service Worker и кэширование статических ресурсов
 self.addEventListener('install', event => {
   console.log('Service Worker установлен');
@@ -32,7 +41,6 @@ self.addEventListener('install', event => {
 
 // Перехват запросов и возврат из кэша, если доступно
 self.addEventListener('fetch', event => {
-  console.log('Запрос перехвачен:', event.request.url);
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -42,8 +50,39 @@ self.addEventListener('fetch', event => {
           return response;
         }
         
-        console.log('Не найдено в кэше, запрашиваю из сети:', event.request.url);
-        // Если нет в кэше, делаем запрос к сети
+        // Для динамических ассетов пытаемся загрузить из сети и кэшировать
+        if (DYNAMIC_ASSETS.some(asset => event.request.url.includes(asset))) {
+          return fetch(event.request)
+            .then(networkResponse => {
+              // Проверяем, что ответ валидный
+              if (!networkResponse || networkResponse.status !== 200) {
+                console.log('Получен невалидный ответ:', networkResponse ? networkResponse.status : 'null');
+                return networkResponse;
+              }
+              
+              // Клонируем ответ, чтобы можно было и использовать, и кэшировать
+              const responseClone = networkResponse.clone();
+              
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  console.log('Кэширую ответ:', event.request.url);
+                  try {
+                    cache.put(event.request, responseClone);
+                  } catch (error) {
+                    console.error('Ошибка при кэшировании ответа:', error);
+                  }
+                });
+              
+              return networkResponse;
+            })
+            .catch(error => {
+              console.error('Не удалось загрузить динамический ассет:', event.request.url, error);
+              // Возвращаем резервное изображение или обработчик ошибок
+              return caches.match('/assets/images/placeholder.png');
+            });
+        }
+        
+        // Для остальных запросов - стандартная логика
         return fetch(event.request)
           .then(response => {
             // Проверяем, что ответ валидный
