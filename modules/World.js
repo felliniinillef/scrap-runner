@@ -8,10 +8,8 @@ class World {
         // Create world boundaries and ground
         this.createPlatforms();
         
-        // Spawn resources after a short delay to ensure player is ready
-        this.scene.time.delayedCall(500, () => {
-            this.spawnResources(5);
-        });
+        // Set up collision handling
+        this.setupCollisions();
         
         console.log('World created');
     }
@@ -46,6 +44,43 @@ class World {
         });
         
         console.log('World platforms created');
+    }
+    
+    setupCollisions() {
+        // Attempt to set up collisions with player sprite
+        this.scene.time.delayedCall(1000, () => {
+            try {
+                if (this.scene.player && this.scene.player.sprite) {
+                    // Add collider between player and platforms
+                    this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
+                    
+                    // Spawn resources after collision setup
+                    this.spawnResources(5);
+                } else {
+                    console.warn('Player sprite not available for collision setup');
+                    this.createFallbackPlayer();
+                }
+            } catch (error) {
+                console.error('Error setting up collisions:', error);
+                this.createFallbackPlayer();
+            }
+        });
+    }
+    
+    createFallbackPlayer() {
+        // Create a fallback player sprite if none exists
+        const fallbackPlayer = this.scene.physics.add.sprite(400, 300, 'player');
+        fallbackPlayer.setBounce(0.2);
+        fallbackPlayer.setCollideWorldBounds(true);
+        
+        // Add collider for fallback player
+        this.scene.physics.add.collider(fallbackPlayer, this.platforms);
+        
+        // Update scene's player reference
+        this.scene.player = { sprite: fallbackPlayer };
+        
+        // Spawn resources
+        this.spawnResources(5);
     }
     
     spawnResources(count) {
@@ -100,24 +135,13 @@ class World {
                     resource.setTint(0x55aaff); // Blue
                     break;
                 case 'electronics':
-                    resource.setTint(0x55ff55); // Green
+                    resource.setTint(0xff5555); // Red
                     break;
             }
+            
+            // Add collider between resources and platforms
+            this.scene.physics.add.collider(resource, this.platforms);
         });
-
-        // Add colliders
-        if (this.platforms) {
-            this.scene.physics.add.collider(this.resources, this.platforms);
-        }
-
-        // Add overlap for resource collection
-        this.scene.physics.add.overlap(
-            this.scene.player.sprite, 
-            this.resources, 
-            this.collectResource, 
-            null, 
-            this
-        );
         
         console.log(`Spawned ${count} resources`);
     }

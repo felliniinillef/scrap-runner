@@ -31,7 +31,7 @@ class GameScene extends Phaser.Scene {
 
     create() {
         // Ensure all critical assets are loaded
-        const criticalAssets = ['ground', 'player_run', 'player_jump', 'resource'];
+        const criticalAssets = ['ground', 'player', 'player_run', 'player_jump', 'resource'];
         const missingAssets = criticalAssets.filter(asset => !this.textures.exists(asset));
         
         if (missingAssets.length > 0) {
@@ -49,42 +49,37 @@ class GameScene extends Phaser.Scene {
         const groundHeight = 64;
         const groundY = this.game.config.height - groundHeight/2;
         
-        // Create multiple ground segments
+        // Create ground segments
         for (let x = 0; x < groundWidth; x += 256) {
             const ground = this.groundGroup.create(x, groundY, 'ground');
             ground.setScale(1);
             ground.refreshBody();
         }
 
-        // Create the player with safety checks
+        // Initialize player with robust error handling
         try {
-            this.player = new Player(this, 100, 450);
-            
-            // Ensure player sprite is fully initialized
-            if (!this.player.sprite) {
-                throw new Error('Player sprite failed to initialize');
-            }
+            // Create player sprite
+            const playerSprite = this.physics.add.sprite(400, 100, 'player');
+            playerSprite.setBounce(0.2);
+            playerSprite.setCollideWorldBounds(true);
 
-            // Add collision between player and ground
-            if (this.groundGroup) {
-                this.physics.add.collider(this.player.sprite, this.groundGroup);
-            }
+            // Add collider between player and ground
+            this.physics.add.collider(playerSprite, this.groundGroup);
 
-            // Ensure player stays within world bounds
-            this.player.sprite.setCollideWorldBounds(true);
-        } catch (error) {
-            console.error('Player creation failed:', error);
-            this.scene.restart();
-            return;
-        }
-        
-        // Initialize world after player is created
-        try {
+            // Store player reference
+            this.player = { 
+                sprite: playerSprite,
+                health: 100,
+                resources: []
+            };
+
+            // Create world with player reference
             this.world = new World(this);
+
+            console.log('GameScene initialized successfully');
         } catch (error) {
-            console.error('World initialization failed:', error);
+            console.error('Error initializing player:', error);
             this.scene.restart();
-            return;
         }
         
         // Create UI elements
@@ -180,7 +175,7 @@ class GameScene extends Phaser.Scene {
     update() {
         // Update the player
         if (this.player) {
-            this.player.update();
+            //this.player.update();
         }
         
         // Update the world
