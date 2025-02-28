@@ -6,113 +6,111 @@ class World {
         this.enemies = [];
         
         // Create world boundaries and ground
-        this.createWorld();
+        this.createPlatforms();
         
-        // Collect sound
-        this.collectSound = scene.sound.add('collect_sound');
-        
-        // Use a delayed call to set up player-dependent features
-        scene.time.delayedCall(100, this.initializePlayerDependentFeatures, [], this);
+        // Spawn resources after a short delay to ensure player is ready
+        this.scene.time.delayedCall(500, () => {
+            this.spawnResources(5);
+        });
         
         console.log('World created');
     }
     
-    createWorld() {
-        // Create ground platforms
+    createPlatforms() {
+        // Create platform group
         this.platforms = this.scene.physics.add.staticGroup();
         
-        // Get game configuration
-        const gameWidth = this.scene.game.config.width;
-        const gameHeight = this.scene.game.config.height;
+        const groundWidth = this.scene.game.config.width;
+        const groundHeight = 64;
+        const groundY = this.scene.game.config.height - groundHeight/2;
         
-        // Create ground segments to cover entire screen width
-        const groundSegmentWidth = 256;  // Assuming ground texture is 256px wide
-        const groundY = gameHeight - 32;  // Position ground near bottom of screen
-        
-        for (let x = 0; x < gameWidth; x += groundSegmentWidth) {
+        // Create multiple ground segments
+        for (let x = 0; x < groundWidth; x += 256) {
             const ground = this.platforms.create(x, groundY, 'ground');
             ground.setScale(1);
             ground.refreshBody();
         }
         
-        // Create some elevated platforms
-        this.platforms.create(600, 450, 'ground');
-        this.platforms.create(50, 350, 'ground');
-        this.platforms.create(750, 300, 'ground');
-        this.platforms.create(450, 200, 'ground');
+        // Create elevated platforms
+        const platformPositions = [
+            { x: 400, y: 500 },   // Platform 1
+            { x: 100, y: 400 },   // Platform 2
+            { x: 700, y: 300 },   // Platform 3
+            { x: 250, y: 200 }    // Platform 4
+        ];
+        
+        platformPositions.forEach(pos => {
+            const platform = this.platforms.create(pos.x, pos.y, 'ground');
+            platform.setScale(0.5);
+            platform.refreshBody();
+        });
         
         console.log('World platforms created');
     }
     
-    initializePlayerDependentFeatures() {
-        // Ensure player exists
-        if (!this.scene.player || !this.scene.player.sprite) {
-            console.warn('Player not ready, retrying...');
-            this.scene.time.delayedCall(100, this.initializePlayerDependentFeatures, [], this);
-            return;
-        }
-        
-        // Add collision between player and platforms
-        this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
-        console.log('Player collision setup complete');
-        
-        // Spawn resources
-        this.spawnResources(10);
-    }
-    
     spawnResources(count) {
-        // Ensure player exists
-        if (!this.scene.player || !this.scene.player.sprite) {
-            console.warn('Cannot spawn resources: Player not ready');
+        // Ensure scene and player are available
+        if (!this.scene || !this.scene.player || !this.scene.player.sprite) {
+            console.warn('Cannot spawn resources: Scene or player not ready');
             return;
         }
 
-        this.resources = this.scene.physics.add.group();
-        
-        // Define platform positions for resource spawning
-        const platformPositions = [
-            { x: 400, y: 580 },   // Main ground
-            { x: 600, y: 450 },   // Platform 1
-            { x: 50, y: 350 },    // Platform 2
-            { x: 750, y: 300 },   // Platform 3
-            { x: 450, y: 200 }    // Platform 4
-        ];
-        
-        // Create resources at random positions on platforms
-        for (let i = 0; i < count; i++) {
-            // Select a random platform
-            const platform = platformPositions[Phaser.Math.Between(0, platformPositions.length - 1)];
+        // Create resources group
+        this.resources = this.scene.physics.add.group({
+            key: 'resource',
+            repeat: count - 1,
+            setXY: { x: 100, y: 0, stepX: 70 }
+        });
+
+        // Randomize resource properties
+        this.resources.children.entries.forEach((resource, index) => {
+            // Randomize position on platforms
+            const platformPositions = [
+                { x: 400, y: 500 },   // Platform 1
+                { x: 100, y: 400 },   // Platform 2
+                { x: 700, y: 300 },   // Platform 3
+                { x: 250, y: 200 }    // Platform 4
+            ];
             
-            // Spawn resource within platform's horizontal bounds
-            const x = Phaser.Math.Between(
-                platform.x - 100, 
-                platform.x + 100
+            const platform = platformPositions[index % platformPositions.length];
+            
+            // Randomize position within platform
+            resource.setPosition(
+                platform.x + Phaser.Math.Between(-50, 50),
+                platform.y - 50
             );
             
-            // Resource types: metal, plastic, electronics
+            // Resource properties
+            resource.setBounceY(0.2);
+            resource.setCollideWorldBounds(true);
+            
+            // Add resource type and value
             const resourceTypes = ['metal', 'plastic', 'electronics'];
             const resourceType = resourceTypes[Phaser.Math.Between(0, 2)];
             
-            const resource = this.resources.create(x, platform.y - 50, 'resource');
-            resource.setBounceY(0.2);
             resource.setData('type', resourceType);
             resource.setData('value', Phaser.Math.Between(5, 15));
             
-            // Tint the resource based on type
-            if (resourceType === 'metal') {
-                resource.setTint(0xcccccc); // Silver
-            } else if (resourceType === 'plastic') {
-                resource.setTint(0x55aaff); // Blue
-            } else {
-                resource.setTint(0x55ff55); // Green
+            // Tint based on resource type
+            switch (resourceType) {
+                case 'metal':
+                    resource.setTint(0xcccccc); // Silver
+                    break;
+                case 'plastic':
+                    resource.setTint(0x55aaff); // Blue
+                    break;
+                case 'electronics':
+                    resource.setTint(0x55ff55); // Green
+                    break;
             }
-            
-            // Ensure resources collide with platforms and world bounds
-            this.scene.physics.add.collider(resource, this.platforms);
-            resource.setCollideWorldBounds(true);
+        });
+
+        // Add colliders
+        if (this.platforms) {
+            this.scene.physics.add.collider(this.resources, this.platforms);
         }
-        
-        // Add overlap between player and resources for collection
+
+        // Add overlap for resource collection
         this.scene.physics.add.overlap(
             this.scene.player.sprite, 
             this.resources, 
@@ -125,23 +123,26 @@ class World {
     }
     
     collectResource(player, resource) {
-        // Get resource type and value
-        const type = resource.getData('type');
-        const value = resource.getData('value');
+        // Prevent multiple collections of the same resource
+        if (resource.getData('collected')) return;
         
-        // Add resource to player
-        if (this.scene.player.collectResource(type, value)) {
-            // Play collection sound
-            this.collectSound.play();
-            
-            // Hide and deactivate the resource
-            resource.disableBody(true, true);
-            
-            // Add some score
-            window.gameCore.addScore(value);
-            
-            console.log(`Collected ${value} ${type}`);
+        const resourceType = resource.getData('type');
+        const resourceValue = resource.getData('value');
+        
+        // Add resource to player's inventory
+        if (this.scene.player && this.scene.player.inventory) {
+            this.scene.player.inventory.addResource(resourceType, resourceValue);
         }
+        
+        // Play collection sound
+        if (this.scene.sound) {
+            const collectSound = this.scene.sound.add('collect');
+            collectSound.play();
+        }
+        
+        // Mark resource as collected and remove it
+        resource.setData('collected', true);
+        resource.destroy();
     }
     
     update() {

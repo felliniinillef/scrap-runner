@@ -30,22 +30,20 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        // Ensure all assets are loaded
-        if (!this.textures.exists('ground') || 
-            !this.textures.exists('player_run') || 
-            !this.textures.exists('resource')) {
-            console.error('Critical assets missing. Reloading scene.');
+        // Ensure all critical assets are loaded
+        const criticalAssets = ['ground', 'player_run', 'player_jump', 'resource'];
+        const missingAssets = criticalAssets.filter(asset => !this.textures.exists(asset));
+        
+        if (missingAssets.length > 0) {
+            console.error('Missing critical assets:', missingAssets);
             this.scene.restart();
             return;
         }
 
-        // Add global click listener to resume audio context
-        this.input.on('pointerdown', this.resumeAudioContext, this);
-
-        // Set up world physics
+        // Set up world physics with proper bounds
         this.physics.world.setBounds(0, 0, this.game.config.width, this.game.config.height);
-
-        // Create ground first
+        
+        // Create ground first to ensure it's available
         this.groundGroup = this.physics.add.staticGroup();
         const groundWidth = this.game.config.width;
         const groundHeight = 64;
@@ -58,15 +56,17 @@ class GameScene extends Phaser.Scene {
             ground.refreshBody();
         }
 
-        // Initialize the world
-        this.world = new World(this);
-        
         // Create the player with safety checks
         try {
             this.player = new Player(this, 100, 450);
             
+            // Ensure player sprite is fully initialized
+            if (!this.player.sprite) {
+                throw new Error('Player sprite failed to initialize');
+            }
+
             // Add collision between player and ground
-            if (this.player.sprite && this.groundGroup) {
+            if (this.groundGroup) {
                 this.physics.add.collider(this.player.sprite, this.groundGroup);
             }
 
@@ -78,31 +78,42 @@ class GameScene extends Phaser.Scene {
             return;
         }
         
+        // Initialize world after player is created
+        try {
+            this.world = new World(this);
+        } catch (error) {
+            console.error('World initialization failed:', error);
+            this.scene.restart();
+            return;
+        }
+        
         // Create UI elements
-        this.ui = new UI(this);
+        try {
+            this.ui = new UI(this);
+        } catch (error) {
+            console.warn('UI initialization failed:', error);
+        }
         
         // Set up keyboard input
         this.inputManager = new InputManager(this);
         
-        // Set up terminal access key
+        // Set up scene-specific keys
         this.input.keyboard.on('keydown-T', () => {
             this.scene.pause();
             this.scene.launch('TerminalScene');
         });
         
-        // Set up inventory access key
         this.input.keyboard.on('keydown-I', () => {
             this.scene.pause();
             this.scene.launch('InventoryScene');
         });
         
-        // Set up map access key
         this.input.keyboard.on('keydown-M', () => {
             this.scene.pause();
             this.scene.launch('MapScene');
         });
         
-        // Play game music
+        // Play game music with robust error handling
         this.playGameMusic();
     }
 
@@ -129,6 +140,12 @@ class GameScene extends Phaser.Scene {
         // Check audio context state
         if (this.sound.context.state === 'suspended') {
             console.log('Audio context suspended. Waiting for user interaction.');
+            // Add a one-time listener to resume on first interaction
+            this.input.once('pointerdown', () => {
+                this.sound.context.resume().then(() => {
+                    this.playGameMusic();
+                });
+            });
             return;
         }
 
@@ -162,12 +179,18 @@ class GameScene extends Phaser.Scene {
 
     update() {
         // Update the player
-        this.player.update();
+        if (this.player) {
+            this.player.update();
+        }
         
         // Update the world
-        this.world.update();
+        if (this.world) {
+            this.world.update();
+        }
         
         // Update UI
-        this.ui.update();
+        if (this.ui) {
+            this.ui.update();
+        }
     }
 }
