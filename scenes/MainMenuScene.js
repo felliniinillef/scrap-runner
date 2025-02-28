@@ -28,10 +28,16 @@ class MainMenuScene extends Phaser.Scene {
             const logoGraphics = this.add.graphics();
             logoGraphics.fillStyle(0x00ffff, 1);
             logoGraphics.fillRect(0, 0, 200, 100);
-            logoGraphics.fillStyle(0x000000, 1);
-            logoGraphics.fillText('SCRAP RUNNER', 20, 40, '16px Courier');
+            
+            // Создаем текстуру из графики
             logoGraphics.generateTexture('logo', 200, 100);
             logoGraphics.destroy();
+            
+            // Добавляем текст отдельно (вместо fillText)
+            this.add.text(400, 200, 'SCRAP RUNNER', {
+                font: 'bold 24px "Courier New"',
+                fill: '#000000'
+            }).setOrigin(0.5);
         }
         
         // Load audio assets
