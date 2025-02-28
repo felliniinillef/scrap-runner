@@ -8,8 +8,12 @@ class World {
         // Create world boundaries and ground
         this.createWorld();
         
-        // Add resources to collect
-        this.spawnResources(10);
+        // Defer resource spawning until player is ready
+        this.scene.events.on('player_created', () => {
+            // Add resources to collect
+            this.spawnResources(10);
+            this.setupPlayerCollisions();
+        });
         
         // Collect sound
         this.collectSound = scene.sound.add('collect_sound');
@@ -30,17 +34,28 @@ class World {
         this.platforms.create(750, 300, 'ground');
         this.platforms.create(450, 200, 'ground');
         
-        // Add collision between player and platforms
-        if (this.scene.player && this.scene.player.sprite) {
-            this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
-        } else {
-            console.warn('Player sprite not available for collision setup');
-        }
-        
         console.log('World platforms created');
     }
     
+    setupPlayerCollisions() {
+        // Add collision between player and platforms
+        if (this.scene.player && this.scene.player.sprite) {
+            this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
+            console.log('Player collision setup complete');
+        } else {
+            console.warn('Player sprite not available for collision setup');
+            // Retry setup after a short delay
+            this.scene.time.delayedCall(500, this.setupPlayerCollisions, [], this);
+        }
+    }
+    
     spawnResources(count) {
+        // Ensure player exists before spawning resources
+        if (!this.scene.player || !this.scene.player.sprite) {
+            console.warn('Cannot spawn resources: Player not ready');
+            return;
+        }
+
         this.resources = this.scene.physics.add.group();
         
         // Create resources at random positions on platforms
