@@ -202,10 +202,10 @@ class AssetGenerator {
     createDefaultButtonTextures() {
         const buttonStyles = [
             { name: 'start_button', color: 0x2ECC71, text: 'START' },
-            { name: 'options_button', color: 0x3498DB, text: 'OPTIONS' },
-            { name: 'credits_button', color: 0xE74C3C, text: 'CREDITS' }
+            { name: 'credits_button', color: 0x3498DB, text: 'CREDITS' },
+            { name: 'options_button', color: 0xE74C3C, text: 'OPTIONS' }
         ];
-        
+
         buttonStyles.forEach(style => {
             if (!this.scene.textures.exists(style.name)) {
                 const canvas = document.createElement('canvas');
@@ -217,26 +217,33 @@ class AssetGenerator {
                     alpha: true 
                 });
                 
-                // Button background
+                // Rounded rectangle using path
+                context.beginPath();
+                context.moveTo(10, 0);
+                context.lineTo(190, 0);
+                context.quadraticCurveTo(200, 0, 200, 10);
+                context.lineTo(200, 40);
+                context.quadraticCurveTo(200, 50, 190, 50);
+                context.lineTo(10, 50);
+                context.quadraticCurveTo(0, 50, 0, 40);
+                context.lineTo(0, 10);
+                context.quadraticCurveTo(0, 0, 10, 0);
+                
+                // Fill with color
                 context.fillStyle = `#${style.color.toString(16).padStart(6, '0')}`;
-                context.fillRoundedRect(0, 0, 200, 50, 10);
+                context.fill();
                 
-                // Button text using Phaser's text rendering
-                const text = this.scene.add.text(50, 15, style.text, {
-                    font: 'bold 24px Arial',
-                    color: '#FFFFFF'
-                });
+                // Add text
+                context.fillStyle = '#FFFFFF';
+                context.font = '16px Arial';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.fillText(style.text, 100, 25);
                 
-                // Generate the texture using snapshot method
-                this.scene.renderer.snapshot((image) => {
-                    if (!this.scene.textures.exists(style.name)) {
-                        this.scene.textures.addImage(style.name, image);
-                        console.log(`Created default ${style.name} texture`);
-                    }
-                    text.destroy();
-                });
+                // Add to textures
+                this.scene.textures.addCanvas(style.name, canvas);
                 
-                context.clearRect(0, 0, canvas.width, canvas.height);
+                console.log(`Created default ${style.name} texture`);
             }
         });
     }

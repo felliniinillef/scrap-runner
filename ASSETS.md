@@ -1,48 +1,74 @@
-# Необходимые ресурсы для Scrap Runner
+# Scrap Runner Asset Requirements
 
-## Изображения
+## Overview
+This document outlines the asset requirements for the Scrap Runner game, including texture, audio, and fallback generation strategies.
 
-Все изображения должны быть в директории `assets/images/`.
+## Asset Generation Guidelines
 
-| Файл | Размер | Описание |
-|------|--------|----------|
-| `logo.png` | 400x200 | Логотип игры, надпись "SCRAP RUNNER" на темно-синем фоне с бирюзовой обводкой |
-| `menu_background.png` | 800x600 | Фон для главного меню, темно-синий с легкой "сеткой" и бирюзовыми акцентами |
-| `player.png` | 32x48 | Спрайт игрока, человечек в киберпанк-стиле |
-| `ground.png` | 32x32 | Блок земли/платформы для построения уровней |
-| `resource.png` | 24x24 | Иконка ресурса, похожая на шестеренку или микросхему |
-| `button.png` | 200x50 | Кнопка для меню в обычном состоянии |
-| `button_hover.png` | 200x50 | Кнопка для меню в состоянии наведения |
-| `placeholder.png` | 64x64 | Изображение-заглушка, показывающееся при отсутствии ресурса |
+### Texture Generation
+- All textures must support dynamic generation with `willReadFrequently: true`
+- Fallback textures should be generated if original assets are missing
+- Texture generation should use canvas context for maximum compatibility
 
-## Звуки
+### Required Textures
+1. Game Textures
+   - `player`: Player character sprite
+   - `resource`: Collectible resource sprite
+   - `ground`: Platform/ground texture
+   - `background`: Game background
 
-Все звуки должны быть в директории `assets/audio/`.
+2. Menu Textures
+   - `menu_background`: Main menu background
+   - `start_button`: Start game button
+   - `credits_button`: Credits button
+   - `options_button`: Options button
+   - `logo`: Game logo
 
-| Файл | Длительность | Описание |
-|------|-------------|----------|
-| `menu_music.mp3` | 1-2 минуты, лупированный | Фоновая музыка для меню, спокойная электронная в стиле киберпанк |
-| `button_click.mp3` | 0.5-1 секунда | Звук клика по кнопке, короткий и четкий |
-| `game_music.mp3` | 2-3 минуты, лупированный | Фоновая музыка для игры, более динамичная электронная |
-| `jump.mp3` | 0.5 секунды | Звук прыжка персонажа |
-| `collect.mp3` | 0.5-1 секунда | Звук сбора ресурса |
+3. Map Textures
+   - `map_player_icon`: Player icon on map
+   - `map_base_icon`: Base icon on map
+   - `map_resource_icon`: Resource icon on map
+   - `map_background`: Map background
 
-## Как создать заглушки
+### Required Audio Files
+1. Menu Audio
+   - `menu_music`: Background music for main menu
+   - `button_click`: Button interaction sound
 
-В проекте есть два скрипта для создания заглушек:
+2. Game Audio
+   - `game_music`: Background music during gameplay
+   - `resource_collect`: Resource collection sound
+   - `jump`: Player jump sound
 
-1. `assets/images/placeholder.js` - скрипт для создания placeholder.png
-2. `assets/audio/placeholder.js` - скрипт для создания пустых аудиофайлов
+3. Map Audio
+   - `map_open`: Map opening sound
+   - `map_ping`: Map interaction sound
 
-Чтобы использовать эти скрипты:
-1. Откройте игру в браузере
-2. Нажмите на соответствующие кнопки "Скачать" в правом углу экрана
-3. Загрузите созданные файлы в соответствующие директории
+## Fallback Asset Generation Strategy
 
-## Автоматическое создание заглушек
+### Texture Fallback
+If an original texture is missing, generate a placeholder with:
+- Unique color
+- Minimal geometric representation
+- Appropriate size for intended use
 
-Если ресурсы отсутствуют, игра автоматически создаст векторные заглушки для изображений и пустые аудио буферы для звуков. Однако рекомендуется создать реальные ресурсы для лучшего опыта.
+### Audio Fallback
+If an original audio file is missing, generate a silent audio buffer with:
+- 1-second duration
+- Single audio channel
+- Matching sample rate of the audio context
 
-## Примечание
+## Performance Considerations
+- Use `willReadFrequently: true` for canvas contexts
+- Minimize texture regeneration
+- Cache generated assets when possible
 
-Для получения наилучшего результата на мобильных устройствах, все изображения должны быть оптимизированы и иметь небольшой вес.
+## Error Handling
+- Log warnings for missing assets
+- Provide informative console messages
+- Gracefully handle asset generation failures
+
+## Future Improvements
+- Implement asset preloading cache
+- Add more detailed texture generation methods
+- Create a centralized asset management system
