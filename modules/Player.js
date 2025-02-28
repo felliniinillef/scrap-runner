@@ -2,8 +2,8 @@ class Player {
     constructor(scene, x, y) {
         this.scene = scene;
         
-        // Create player sprite
-        this.sprite = scene.physics.add.sprite(x, y, 'player');
+        // Create player sprite with correct sprite sheet
+        this.sprite = scene.physics.add.sprite(x, y, 'player_run', 0);
         this.sprite.setBounce(0.2);
         this.sprite.setCollideWorldBounds(true);
         
@@ -15,6 +15,7 @@ class Player {
         this.energy = 100;
         this.maxEnergy = 100;
         this.isJumping = false;
+        this.canJump = true;
         
         // Set up animations
         if (scene.anims.get('player_run') === undefined) {
@@ -27,7 +28,7 @@ class Player {
             
             scene.anims.create({
                 key: 'player_idle',
-                frames: [{ key: 'player', frame: 0 }],
+                frames: [{ key: 'player_run', frame: 0 }],
                 frameRate: 10
             });
             
@@ -49,6 +50,12 @@ class Player {
     }
     
     update() {
+        // Ensure sprite is properly initialized
+        if (!this.sprite || !this.sprite.body) {
+            console.warn('Player sprite not fully initialized');
+            return;
+        }
+
         // Handle horizontal movement
         if (this.cursors.left.isDown) {
             this.sprite.setVelocityX(-this.speed);
@@ -72,14 +79,26 @@ class Player {
             }
         }
         
-        // Handle jumping
-        if (this.cursors.up.isDown && this.sprite.body.onFloor()) {
-            this.jump();
+        // Improved jumping mechanics
+        if (this.cursors.up.isDown) {
+            if (this.sprite.body.onFloor() && this.canJump) {
+                this.jump();
+                this.canJump = false;
+            }
+        } else {
+            // Allow jumping again when up key is released
+            this.canJump = true;
         }
         
-        // Play jump animation if in the air
+        // Jumping and falling animations
         if (!this.sprite.body.onFloor()) {
-            this.sprite.anims.play('player_jump', true);
+            if (this.sprite.body.velocity.y < 0) {
+                // Ascending
+                this.sprite.anims.play('player_jump', true);
+            } else {
+                // Falling
+                this.sprite.anims.play('player_jump', true);
+            }
         }
         
         // Energy regeneration when standing still
@@ -112,15 +131,11 @@ class Player {
     }
     
     useEnergy(amount) {
-        if (this.energy >= amount) {
-            this.energy -= amount;
-            return true;
-        }
-        return false;
+        this.energy = Math.max(0, this.energy - amount);
     }
     
     regenerateEnergy(amount) {
-        this.energy = Math.min(this.energy + amount, this.maxEnergy);
+        this.energy = Math.min(this.maxEnergy, this.energy + amount);
     }
     
     collectResource(resourceType, amount) {

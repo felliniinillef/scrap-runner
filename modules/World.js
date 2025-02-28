@@ -21,10 +21,21 @@ class World {
         // Create ground platforms
         this.platforms = this.scene.physics.add.staticGroup();
         
-        // Create main ground
-        this.platforms.create(400, 580, 'ground').setScale(2).refreshBody();
+        // Get game configuration
+        const gameWidth = this.scene.game.config.width;
+        const gameHeight = this.scene.game.config.height;
         
-        // Create some platforms
+        // Create ground segments to cover entire screen width
+        const groundSegmentWidth = 256;  // Assuming ground texture is 256px wide
+        const groundY = gameHeight - 32;  // Position ground near bottom of screen
+        
+        for (let x = 0; x < gameWidth; x += groundSegmentWidth) {
+            const ground = this.platforms.create(x, groundY, 'ground');
+            ground.setScale(1);
+            ground.refreshBody();
+        }
+        
+        // Create some elevated platforms
         this.platforms.create(600, 450, 'ground');
         this.platforms.create(50, 350, 'ground');
         this.platforms.create(750, 300, 'ground');
