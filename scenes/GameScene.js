@@ -8,8 +8,20 @@ class GameScene extends Phaser.Scene {
         this.load.image('player', 'assets/images/player.png');
         this.load.image('ground', 'assets/images/ground.png');
         this.load.image('resource', 'assets/images/resource.png');
-        this.load.spritesheet('player_run', 'assets/images/player_run.png', { frameWidth: 32, frameHeight: 48 });
-        this.load.spritesheet('player_jump', 'assets/images/player_jump.png', { frameWidth: 32, frameHeight: 48 });
+        
+        // Load sprite sheets with correct frame configuration
+        this.load.spritesheet('player_run', 'assets/images/player_run.png', { 
+            frameWidth: 32, 
+            frameHeight: 48,
+            startFrame: 0,
+            endFrame: 5
+        });
+        this.load.spritesheet('player_jump', 'assets/images/player_jump.png', { 
+            frameWidth: 32, 
+            frameHeight: 48,
+            startFrame: 0,
+            endFrame: 5
+        });
         
         // Load audio assets
         this.load.audio('game_music', 'assets/audio/game_music.mp3');

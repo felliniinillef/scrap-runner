@@ -220,28 +220,47 @@
                     ctx.fillRect(asset.width*2/3 - asset.width/6, asset.height/5, asset.width/6, asset.height/10);
                 }
                 else if (asset.name === 'player_run.png' || asset.name === 'player_jump.png') {
-                    // Create multiple frames for sprite animation
                     const frameWidth = asset.width;
                     const frameHeight = asset.height;
                     const numFrames = 6;  // 6 frames for smooth animation
-
+                    const spriteSheetWidth = frameWidth * numFrames;
+                    
+                    // Resize canvas to accommodate all frames
+                    canvas.width = spriteSheetWidth;
+                    canvas.height = frameHeight;
+                    
+                    // Reset context
+                    ctx.clearRect(0, 0, spriteSheetWidth, frameHeight);
+                    
+                    // Base background color
+                    ctx.fillStyle = '#2C3E50';  // Dark gray background
+                    ctx.fillRect(0, 0, spriteSheetWidth, frameHeight);
+                    
+                    // Character color based on sprite type
+                    const characterColor = asset.name === 'player_run.png' ? '#3498DB' : '#E74C3C';
+                    ctx.fillStyle = characterColor;
+                    
+                    // Generate frames
                     for (let frame = 0; frame < numFrames; frame++) {
-                        // Reset canvas for each frame
-                        ctx.clearRect(0, 0, frameWidth, frameHeight);
-                        
-                        // Base background
-                        ctx.fillStyle = '#2C3E50';  // Dark gray background
-                        ctx.fillRect(0, 0, frameWidth, frameHeight);
-                        
-                        // Character color based on sprite type
-                        ctx.fillStyle = asset.name === 'player_run.png' ? '#3498DB' : '#E74C3C';
+                        const frameX = frame * frameWidth;
                         
                         // Body
-                        ctx.fillRect(frameWidth/4, frameHeight/3, frameWidth/2, frameHeight/2);
+                        ctx.fillRect(
+                            frameX + frameWidth/4, 
+                            frameHeight/3, 
+                            frameWidth/2, 
+                            frameHeight/2
+                        );
                         
                         // Head
                         ctx.beginPath();
-                        ctx.arc(frameWidth/2, frameHeight/4, frameWidth/6, 0, Math.PI * 2);
+                        ctx.arc(
+                            frameX + frameWidth/2, 
+                            frameHeight/4, 
+                            frameWidth/6, 
+                            0, 
+                            Math.PI * 2
+                        );
                         ctx.fill();
                         
                         // Animation variations
@@ -252,19 +271,19 @@
                             // Running animation: leg movement
                             const legOffset = Math.sin(frame * Math.PI / 3) * (frameWidth/8);
                             ctx.beginPath();
-                            ctx.moveTo(frameWidth/3 + legOffset, frameHeight*2/3);
-                            ctx.lineTo(frameWidth/4 + legOffset, frameHeight);
-                            ctx.moveTo(frameWidth*2/3 - legOffset, frameHeight*2/3);
-                            ctx.lineTo(frameWidth*3/4 - legOffset, frameHeight);
+                            ctx.moveTo(frameX + frameWidth/3 + legOffset, frameHeight*2/3);
+                            ctx.lineTo(frameX + frameWidth/4 + legOffset, frameHeight);
+                            ctx.moveTo(frameX + frameWidth*2/3 - legOffset, frameHeight*2/3);
+                            ctx.lineTo(frameX + frameWidth*3/4 - legOffset, frameHeight);
                             ctx.stroke();
                         } else {
                             // Jumping animation: spread arms and legs
                             const armSpread = frame * (frameWidth/12);
                             ctx.beginPath();
-                            ctx.moveTo(frameWidth/2 - armSpread, frameHeight/2);
-                            ctx.lineTo(frameWidth/4, frameHeight*2/3);
-                            ctx.moveTo(frameWidth/2 + armSpread, frameHeight/2);
-                            ctx.lineTo(frameWidth*3/4, frameHeight*2/3);
+                            ctx.moveTo(frameX + frameWidth/2 - armSpread, frameHeight/2);
+                            ctx.lineTo(frameX + frameWidth/4, frameHeight*2/3);
+                            ctx.moveTo(frameX + frameWidth/2 + armSpread, frameHeight/2);
+                            ctx.lineTo(frameX + frameWidth*3/4, frameHeight*2/3);
                             ctx.stroke();
                         }
                     }
