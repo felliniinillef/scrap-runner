@@ -1,4 +1,16 @@
 // Scrap Runner - Main Game Configuration
+
+// Import scenes
+import BootScene from './scenes/BootScene.js';
+import MainMenuScene from './scenes/MainMenuScene.js';
+import GameScene from './scenes/GameScene.js';
+import TerminalScene from './scenes/TerminalScene.js';
+import InventoryScene from './scenes/InventoryScene.js';
+import MapScene from './scenes/MapScene.js';
+
+// Ensure GameCore is imported
+import GameCore from './modules/GameCore.js';
+
 window.onload = function() {
     // Phaser game configuration
     const config = {
@@ -23,7 +35,6 @@ window.onload = function() {
             InventoryScene,
             MapScene
         ],
-        // Добавляем атрибут willReadFrequently для Canvas
         render: {
             antialias: false,
             pixelArt: true,
