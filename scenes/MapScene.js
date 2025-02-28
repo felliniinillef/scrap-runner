@@ -4,23 +4,55 @@ class MapScene extends Phaser.Scene {
     }
 
     preload() {
-        // Load map assets
-        this.load.image('map_bg', 'assets/images/map_background.png');
-        this.load.image('map_player', 'assets/images/map_player_icon.png');
-        this.load.image('map_base', 'assets/images/map_base_icon.png');
-        this.load.image('map_resource', 'assets/images/map_resource_icon.png');
-        
-        // Load audio assets
+        // Initialize asset generator
+        const assetGenerator = new AssetGenerator(this);
+
+        // Define all required assets
+        const requiredTextures = [
+            'map_player_icon', 
+            'map_base_icon', 
+            'map_resource_icon', 
+            'map_background'
+        ];
+
+        const requiredAudio = [
+            'map_open', 
+            'map_ping'
+        ];
+
+        // Generate missing textures
+        requiredTextures.forEach(textureName => {
+            if (!this.textures.exists(textureName)) {
+                console.warn(`Generating missing texture: ${textureName}`);
+                assetGenerator.createDefaultTexture(this, textureName);
+            }
+        });
+
+        // Generate missing audio
+        requiredAudio.forEach(audioName => {
+            if (!this.cache.audio.exists(audioName)) {
+                console.warn(`Generating missing audio: ${audioName}`);
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 1, audioContext.sampleRate);
+                
+                this.sound.add(audioName, {
+                    buffer: buffer,
+                    loop: false
+                });
+            }
+        });
+
+        // Attempt to load assets
+        this.load.image('map_player_icon', 'assets/images/map_player_icon.png');
+        this.load.image('map_base_icon', 'assets/images/map_base_icon.png');
+        this.load.image('map_resource_icon', 'assets/images/map_resource_icon.png');
+        this.load.image('map_background', 'assets/images/map_background.png');
+
         this.load.audio('map_open', 'assets/audio/map_open.mp3');
         this.load.audio('map_ping', 'assets/audio/map_ping.mp3');
     }
 
     create() {
-        // Generate default assets if missing
-        const assetGenerator = new AssetGenerator();
-        assetGenerator.generateDefaultMapAssets(this);
-        assetGenerator.generateDefaultAudioAssets(this);
-
         try {
             // Ensure map icons exist
             const requiredIcons = [
@@ -33,6 +65,7 @@ class MapScene extends Phaser.Scene {
             requiredIcons.forEach(icon => {
                 if (!this.textures.exists(icon)) {
                     console.warn(`Missing map icon: ${icon}. Using placeholder.`);
+                    const assetGenerator = new AssetGenerator(this);
                     assetGenerator.createDefaultTexture(this, icon);
                 }
             });
@@ -60,14 +93,21 @@ class MapScene extends Phaser.Scene {
             );
             this.mapBackground.setDisplaySize(this.game.config.width, this.game.config.height);
 
-            // Play map open sound with error handling
+            // Play map open sound with comprehensive error handling
             try {
-                this.sound.play('map_open', { volume: 0.5 });
+                if (this.sound.exists('map_open')) {
+                    this.sound.play('map_open', { 
+                        volume: 0.5,
+                        onend: () => console.log('Map open sound completed')
+                    });
+                } else {
+                    console.warn('map_open sound not found in cache');
+                }
             } catch (audioError) {
                 console.error('Failed to play map_open sound:', audioError);
             }
 
-            // Add map background
+            // Rest of the map scene initialization...
             this.add.image(400, 300, 'map_bg');
             
             // Map header
@@ -104,7 +144,17 @@ class MapScene extends Phaser.Scene {
             });
             
             closeButton.on('pointerdown', () => {
-                this.sound.play('map_ping');
+                // Play map ping sound with error handling
+                try {
+                    if (this.sound.exists('map_ping')) {
+                        this.sound.play('map_ping');
+                    } else {
+                        console.warn('map_ping sound not found in cache');
+                    }
+                } catch (audioError) {
+                    console.error('Failed to play map_ping sound:', audioError);
+                }
+                
                 this.scene.stop();
                 this.scene.resume('GameScene');
             });
@@ -136,7 +186,6 @@ class MapScene extends Phaser.Scene {
             this.createMapLegend();
         } catch (error) {
             console.error('Map scene initialization failed:', error);
-            // Optionally, restart the scene or return to main menu
             this.scene.start('MainMenuScene');
         }
     }
