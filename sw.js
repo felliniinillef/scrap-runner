@@ -5,28 +5,14 @@ const CACHE_NAME = 'scrap-runner-v1';
 const scope = self.registration.scope;
 const basePath = scope.slice(0, scope.lastIndexOf('/') + 1);
 
-const urlsToCache = [
+// Основные файлы для кэширования
+const BASE_URLS = [
   './',
   './index.html',
   './manifest.json',
   './icon.js',
   './game.js',
-  './modules/Audio.js',
-  './modules/Crafting.js',
-  './modules/Inventory.js',
-  './modules/Player.js',
-  './modules/Resources.js',
-  './scenes/BootScene.js',
-  './scenes/GameScene.js',
-  './scenes/MainMenuScene.js',
-  './scenes/UIScene.js',
-  './utils/AssetGenerator.js',
-  './utils/InputManager.js',
-  './utils/MapGenerator.js',
-  './utils/NameGenerator.js',
-  './utils/SaveManager.js',
-  './lib/phaser.min.js',
-  './lib/howler.min.js'
+  './404.html'
 ];
 
 // Установка Service Worker и кэширование статических ресурсов
@@ -36,7 +22,10 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Кэширование файлов');
-        return cache.addAll(urlsToCache.map(url => url.startsWith('./') ? url.substring(1) : url));
+        return cache.addAll(BASE_URLS);
+      })
+      .catch(error => {
+        console.error('Ошибка при кэшировании:', error);
       })
   );
 });
@@ -70,14 +59,27 @@ self.addEventListener('fetch', event => {
             caches.open(CACHE_NAME)
               .then(cache => {
                 console.log('Кэширую ответ:', event.request.url);
-                cache.put(event.request, responseToCache);
+                try {
+                  cache.put(event.request, responseToCache);
+                } catch (error) {
+                  console.error('Ошибка при кэшировании ответа:', error);
+                }
               });
             
             return response;
           })
           .catch(error => {
             console.error('Ошибка при получении из сети:', error);
-            // Если не удалось получить из сети, возвращаем страницу 404
+            // Если это запрос на изображение или аудио, возвращаем placeholder
+            if (event.request.url.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
+              return caches.match('./assets/images/placeholder.png');
+            }
+            
+            if (event.request.url.match(/\.(mp3|ogg|wav)$/i)) {
+              return new Response(null, { status: 200, statusText: 'OK' });
+            }
+            
+            // Для других ресурсов возвращаем страницу 404
             return caches.match('./404.html');
           });
       })

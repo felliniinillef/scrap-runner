@@ -22,6 +22,7 @@ window.BootScene = class BootScene extends Phaser.Scene {
             progressBar.clear();
             progressBar.fillStyle(0x00ffff, 1);
             progressBar.fillRect(250, 325, 300 * value, 20);
+            this.loadingText.setText(`Загрузка... ${Math.floor(value * 100)}%`);
         });
         
         this.load.on('complete', () => {
@@ -30,19 +31,37 @@ window.BootScene = class BootScene extends Phaser.Scene {
             this.loadingText.destroy();
         });
         
-        // Инициализируем генератор ассетов
-        this.assetGenerator = new AssetGenerator(this);
-        
-        // Предзагрузка минимальных ресурсов
-        this.load.image('logo', 'assets/images/logo.png');
-        this.load.image('background', 'assets/images/menu_background.png');
+        // Пытаемся загрузить ресурсы
+        try {
+            // Изображения
+            this.load.image('logo', 'assets/images/logo.png');
+            this.load.image('background', 'assets/images/menu_background.png');
+            this.load.image('player', 'assets/images/player.png');
+            this.load.image('ground', 'assets/images/ground.png');
+            this.load.image('resource', 'assets/images/resource.png');
+            this.load.image('button', 'assets/images/button.png');
+            this.load.image('button_hover', 'assets/images/button_hover.png');
+            
+            // Звуки
+            this.load.audio('menu_music', 'assets/audio/menu_music.mp3');
+            this.load.audio('button_click', 'assets/audio/button_click.mp3');
+            this.load.audio('game_music', 'assets/audio/game_music.mp3');
+            this.load.audio('jump', 'assets/audio/jump.mp3');
+            this.load.audio('collect', 'assets/audio/collect.mp3');
+        } catch (error) {
+            console.error('Error loading assets:', error);
+        }
     }
 
     create() {
-        // Создаем дефолтные текстуры на случай отсутствия файлов
+        // Создаем дефолтные текстуры с помощью AssetGenerator
+        this.assetGenerator = new AssetGenerator(this);
         this.assetGenerator.createDefaultTextures();
         
-        // Переходим в главное меню
-        this.scene.start('MainMenuScene');
+        // Даем немного времени для рендеринга
+        this.time.delayedCall(500, () => {
+            // Переходим в главное меню
+            this.scene.start('MainMenuScene');
+        });
     }
-}
+};

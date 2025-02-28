@@ -17,28 +17,7 @@ class MainMenuScene extends Phaser.Scene {
         
         // Load main menu assets
         this.load.image('logo', 'assets/images/logo.png');
-        this.load.image('background', 'assets/images/menu_background.png');
-        
-        // Create default graphics for missing assets
-        this.load.on('filecomplete-image-logo', () => {}, this);
-        this.load.on('filecomplete-image-background', () => {}, this);
-        
-        // If logo fails to load, create a default one
-        if (!this.textures.exists('logo')) {
-            const logoGraphics = this.add.graphics();
-            logoGraphics.fillStyle(0x00ffff, 1);
-            logoGraphics.fillRect(0, 0, 200, 100);
-            
-            // Создаем текстуру из графики
-            logoGraphics.generateTexture('logo', 200, 100);
-            logoGraphics.destroy();
-            
-            // Добавляем текст отдельно
-            this.add.text(400, 200, 'SCRAP RUNNER', {
-                font: 'bold 24px "Courier New"',
-                fill: '#000000'
-            }).setOrigin(0.5);
-        }
+        this.load.image('menu_background', 'assets/images/menu_background.png');
         
         // Load audio assets
         this.load.audio('menu_music', 'assets/audio/menu_music.mp3');
@@ -46,41 +25,30 @@ class MainMenuScene extends Phaser.Scene {
     }
 
     create() {
+        console.log('MainMenuScene create started');
+        
         // Remove loading text if it exists
         if (this.loadingText) {
             this.loadingText.destroy();
         }
         
-        // Create default background if missing
-        if (!this.textures.exists('background')) {
-            const bgGraphics = this.add.graphics();
-            bgGraphics.fillGradientStyle(0x000033, 0x000033, 0x000066, 0x000066, 1);
-            bgGraphics.fillRect(0, 0, 800, 600);
-            bgGraphics.generateTexture('background', 800, 600);
-            bgGraphics.destroy();
-        }
+        // Используем AssetGenerator для создания текстур при необходимости
+        this.assetGenerator = new AssetGenerator(this);
         
-        // Create default logo if missing
-        if (!this.textures.exists('logo')) {
-            const logoGraphics = this.add.graphics();
-            logoGraphics.fillStyle(0x00ffff, 1);
-            logoGraphics.fillRect(0, 0, 300, 100);
-            logoGraphics.generateTexture('logo', 300, 100);
-            logoGraphics.destroy();
-            
-            // Add text on top of the default logo
-            this.add.text(400, 200, 'SCRAP RUNNER', {
-                font: 'bold 32px "Courier New"',
-                fill: '#000000'
-            }).setOrigin(0.5);
-        }
-    
         // Add background
-        this.add.image(400, 300, 'background');
+        const background = this.add.image(400, 300, 'menu_background');
+        if (!background.texture.key) {
+            this.assetGenerator.createDefaultMenuBackgroundTexture();
+            background.setTexture('menu_background');
+        }
         
-        // Add logo
-        const logo = this.add.image(400, 200, 'logo');
-        logo.setScale(0.5);
+        // Add logo at the top
+        const logo = this.add.image(400, 150, 'logo');
+        if (!logo.texture.key) {
+            this.assetGenerator.createDefaultLogoTexture();
+            logo.setTexture('logo');
+        }
+        logo.setScale(0.8);
         
         // Add menu buttons
         const startButton = this.add.text(400, 350, 'START GAME', { 
@@ -174,8 +142,8 @@ class MainMenuScene extends Phaser.Scene {
         // Background animation
         this.tweens.add({
             targets: logo,
-            y: 210,
-            duration: 2000,
+            y: 170,
+            duration: 1500,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
