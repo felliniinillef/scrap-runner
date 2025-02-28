@@ -31,7 +31,7 @@ Scrap Runner - это 2D платформер, разработанный на J
 
 ## Установка и запуск
 
-Просто откройте index.html в браузере или посетите [онлайн-версию](https://ВАШ_ЛОГИН.github.io/scrap-runner/).
+Просто откройте index.html в браузере или посетите [онлайн-версию](https://felliniinillef.github.io/scrap-runner/).
 
 ## Лицензия
 
