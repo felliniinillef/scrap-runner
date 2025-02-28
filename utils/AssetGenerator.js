@@ -61,21 +61,21 @@ class AssetGenerator {
         if (!this.scene.textures.exists('ground')) {
             const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
-            // Create a simple platform
-            graphics.fillStyle(0x555555, 1);
-            graphics.fillRect(0, 0, 32, 32);
+            // Ground texture
+            graphics.fillStyle(0x8B4513, 1);  // Brown color
+            graphics.fillRect(0, 0, 256, 64);
             
-            // Add some texture lines
-            graphics.lineStyle(1, 0x333333, 1);
-            graphics.lineBetween(0, 8, 32, 8);
-            graphics.lineBetween(0, 16, 32, 16);
-            graphics.lineBetween(0, 24, 32, 24);
+            // Add some texture details
+            graphics.fillStyle(0x5D3A1A, 1);  // Darker brown
+            for (let i = 0; i < 256; i += 20) {
+                graphics.fillRect(i, 0, 10, 64);
+            }
             
             // Generate the texture
-            graphics.generateTexture('ground', 32, 32);
+            graphics.generateTexture('ground', 256, 64);
             graphics.destroy();
             
-            console.log('Created default platform texture');
+            console.log('Created default ground texture');
         }
     }
     
@@ -84,17 +84,18 @@ class AssetGenerator {
             const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Create a gradient background
-            graphics.fillGradientStyle(0x000022, 0x000022, 0x000044, 0x000044, 1);
+            const gradient = graphics.createLinearGradient(0, 0, 0, 600);
+            gradient.addColorStop(0, '#87CEEB');    // Sky blue
+            gradient.addColorStop(1, '#E0F8FF');    // Light blue
+            
+            graphics.fillStyle(gradient);
             graphics.fillRect(0, 0, 800, 600);
             
-            // Add some stars
-            graphics.fillStyle(0xffffff, 0.5);
-            for (let i = 0; i < 50; i++) {
-                const x = Math.random() * 800;
-                const y = Math.random() * 600;
-                const size = Math.random() * 2 + 1;
-                graphics.fillCircle(x, y, size);
-            }
+            // Add some cloud-like shapes
+            graphics.fillStyle('rgba(255, 255, 255, 0.7)');
+            graphics.fillCircle(200, 100, 50);
+            graphics.fillCircle(250, 120, 60);
+            graphics.fillCircle(600, 150, 40);
             
             // Generate the texture
             graphics.generateTexture('background', 800, 600);
@@ -108,39 +109,21 @@ class AssetGenerator {
         if (!this.scene.textures.exists('logo')) {
             const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
-            // Create a background
-            graphics.fillStyle(0x000033, 1);
-            graphics.fillRect(0, 0, 400, 200);
+            // Logo background
+            graphics.fillStyle(0x2C3E50, 1);  // Dark blue-gray
+            graphics.fillRect(0, 0, 300, 100);
             
-            // Create a border
-            graphics.lineStyle(4, 0x00ffff, 1);
-            graphics.strokeRect(10, 10, 380, 180);
-            
-            // Add game title
-            const textStyle = {
-                font: 'bold 48px "Courier New"',
-                fill: '#00ffff',
-                align: 'center'
-            };
-            
-            const text = this.scene.add.text(200, 60, 'SCRAP', textStyle);
-            text.setOrigin(0.5);
-            
-            const text2 = this.scene.add.text(200, 120, 'RUNNER', textStyle);
-            text2.setOrigin(0.5);
-            
-            // Generate the texture
-            this.scene.renderer.snapshot((image) => {
-                if (this.scene.textures.exists('logo')) {
-                    return;
-                }
-                this.scene.textures.addImage('logo', image);
-                console.log('Created default logo texture');
+            // Logo text
+            const text = graphics.text('SCRAP RUNNER', 20, 40, {
+                font: 'bold 48px Arial',
+                fill: '#FFFFFF'
             });
             
+            // Generate the texture
+            graphics.generateTexture('logo', 300, 100);
             graphics.destroy();
-            text.destroy();
-            text2.destroy();
+            
+            console.log('Created default logo texture');
         }
     }
     
@@ -149,31 +132,16 @@ class AssetGenerator {
             const graphics = this.scene.add.graphics({ willReadFrequently: true });
             
             // Create a gradient background
-            graphics.fillGradientStyle(0x000022, 0x000022, 0x000044, 0x000044, 1);
+            const gradient = graphics.createLinearGradient(0, 0, 0, 600);
+            gradient.addColorStop(0, '#34495E');    // Dark blue-gray
+            gradient.addColorStop(1, '#2C3E50');    // Slightly lighter blue-gray
+            
+            graphics.fillStyle(gradient);
             graphics.fillRect(0, 0, 800, 600);
             
-            // Add some grid lines
-            graphics.lineStyle(1, 0x00ffff, 0.2);
-            
-            // Horizontal grid lines
-            for (let y = 0; y < 600; y += 20) {
-                graphics.lineBetween(0, y, 800, y);
-            }
-            
-            // Vertical grid lines
-            for (let x = 0; x < 800; x += 20) {
-                graphics.lineBetween(x, 0, x, 600);
-            }
-            
-            // Add some glow points
-            for (let i = 0; i < 30; i++) {
-                const x = Math.random() * 800;
-                const y = Math.random() * 600;
-                const radius = Math.random() * 100 + 50;
-                
-                graphics.fillStyle(0x00ffff, 0.1);
-                graphics.fillCircle(x, y, radius);
-            }
+            // Add some geometric shapes for depth
+            graphics.fillStyle('rgba(52, 73, 94, 0.5)');
+            graphics.fillRect(50, 50, 700, 500);
             
             // Generate the texture
             graphics.generateTexture('menu_background', 800, 600);
@@ -184,71 +152,38 @@ class AssetGenerator {
     }
     
     createDefaultButtonTextures() {
-        if (!this.scene.textures.exists('button')) {
-            const graphics = this.scene.add.graphics({ willReadFrequently: true });
-            
-            // Normal button
-            graphics.fillStyle(0x003333, 1);
-            graphics.fillRect(0, 0, 200, 50);
-            graphics.lineStyle(2, 0x00ffff, 1);
-            graphics.strokeRect(0, 0, 200, 50);
-            
-            // Generate the texture
-            graphics.generateTexture('button', 200, 50);
-            
-            // Hover button
-            graphics.clear();
-            graphics.fillStyle(0x004444, 1);
-            graphics.fillRect(0, 0, 200, 50);
-            graphics.lineStyle(2, 0x00ffdd, 1);
-            graphics.strokeRect(0, 0, 200, 50);
-            
-            // Generate the texture
-            graphics.generateTexture('button_hover', 200, 50);
-            
-            graphics.destroy();
-            
-            console.log('Created default button textures');
-        }
+        const buttonStyles = [
+            { name: 'start_button', color: 0x2ECC71, text: 'START' },
+            { name: 'options_button', color: 0x3498DB, text: 'OPTIONS' },
+            { name: 'credits_button', color: 0xE74C3C, text: 'CREDITS' }
+        ];
+        
+        buttonStyles.forEach(style => {
+            if (!this.scene.textures.exists(style.name)) {
+                const graphics = this.scene.add.graphics({ willReadFrequently: true });
+                
+                // Button background
+                graphics.fillStyle(style.color, 1);
+                graphics.fillRoundedRect(0, 0, 200, 50, 10);
+                
+                // Button text
+                graphics.fillStyle(0xFFFFFF, 1);
+                const text = graphics.text(style.text, 50, 15, {
+                    font: 'bold 24px Arial',
+                    fill: '#FFFFFF'
+                });
+                
+                // Generate the texture
+                graphics.generateTexture(style.name, 200, 50);
+                graphics.destroy();
+                
+                console.log(`Created default ${style.name} texture`);
+            }
+        });
     }
     
     createDefaultAudioFiles() {
-        // Создаем пустой звуковой буфер для menu_music
-        if (!this.scene.cache.audio.exists('menu_music')) {
-            try {
-                // Создаем AudioContext
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                const audioContext = new AudioContext();
-                
-                // Создаем пустой буфер
-                const buffer = audioContext.createBuffer(2, 44100, 44100);
-                
-                // Добавляем в кэш Phaser
-                this.scene.cache.audio.add('menu_music', buffer);
-                
-                console.log('Created empty audio buffer for menu_music');
-            } catch (e) {
-                console.error('Failed to create audio buffer:', e);
-            }
-        }
-        
-        // Создаем пустой звуковой буфер для button_click
-        if (!this.scene.cache.audio.exists('button_click')) {
-            try {
-                // Создаем AudioContext
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                const audioContext = new AudioContext();
-                
-                // Создаем пустой буфер
-                const buffer = audioContext.createBuffer(2, 22050, 44100);
-                
-                // Добавляем в кэш Phaser
-                this.scene.cache.audio.add('button_click', buffer);
-                
-                console.log('Created empty audio buffer for button_click');
-            } catch (e) {
-                console.error('Failed to create audio buffer:', e);
-            }
-        }
+        // Audio file generation logic (if needed)
+        console.log('Audio file generation not implemented');
     }
 }
