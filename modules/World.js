@@ -8,15 +8,11 @@ class World {
         // Create world boundaries and ground
         this.createWorld();
         
-        // Defer resource spawning until player is ready
-        this.scene.events.on('player_created', () => {
-            // Add resources to collect
-            this.spawnResources(10);
-            this.setupPlayerCollisions();
-        });
-        
         // Collect sound
         this.collectSound = scene.sound.add('collect_sound');
+        
+        // Use a delayed call to set up player-dependent features
+        scene.time.delayedCall(100, this.initializePlayerDependentFeatures, [], this);
         
         console.log('World created');
     }
@@ -37,20 +33,24 @@ class World {
         console.log('World platforms created');
     }
     
-    setupPlayerCollisions() {
-        // Add collision between player and platforms
-        if (this.scene.player && this.scene.player.sprite) {
-            this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
-            console.log('Player collision setup complete');
-        } else {
-            console.warn('Player sprite not available for collision setup');
-            // Retry setup after a short delay
-            this.scene.time.delayedCall(500, this.setupPlayerCollisions, [], this);
+    initializePlayerDependentFeatures() {
+        // Ensure player exists
+        if (!this.scene.player || !this.scene.player.sprite) {
+            console.warn('Player not ready, retrying...');
+            this.scene.time.delayedCall(100, this.initializePlayerDependentFeatures, [], this);
+            return;
         }
+        
+        // Add collision between player and platforms
+        this.scene.physics.add.collider(this.scene.player.sprite, this.platforms);
+        console.log('Player collision setup complete');
+        
+        // Spawn resources
+        this.spawnResources(10);
     }
     
     spawnResources(count) {
-        // Ensure player exists before spawning resources
+        // Ensure player exists
         if (!this.scene.player || !this.scene.player.sprite) {
             console.warn('Cannot spawn resources: Player not ready');
             return;
@@ -113,15 +113,6 @@ class World {
             window.gameCore.addScore(value);
             
             console.log(`Collected ${value} ${type}`);
-            
-            // Respawn the resource after a delay
-            this.scene.time.delayedCall(5000, () => {
-                if (this.resources.countActive(true) < 10) {
-                    // Choose a random x position
-                    const x = Phaser.Math.Between(50, 750);
-                    resource.enableBody(true, x, 0, true, true);
-                }
-            });
         }
     }
     

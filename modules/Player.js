@@ -45,9 +45,6 @@ class Player {
         // Jump sound
         this.jumpSound = scene.sound.add('jump_sound');
         
-        // Emit event that player is created
-        scene.events.emit('player_created');
-        
         console.log('Player created');
     }
     
