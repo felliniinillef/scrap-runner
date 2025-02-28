@@ -39,6 +39,9 @@ class GameScene extends Phaser.Scene {
             return;
         }
 
+        // Add global click listener to resume audio context
+        this.input.on('pointerdown', this.resumeAudioContext, this);
+
         // Set up world physics
         this.physics.world.setBounds(0, 0, this.game.config.width, this.game.config.height);
 
@@ -99,15 +102,64 @@ class GameScene extends Phaser.Scene {
             this.scene.launch('MapScene');
         });
         
-        // Play game music with safety check
-        try {
-            this.gameMusic = this.sound.add('game_music', { loop: true, volume: 0.3 });
-            this.gameMusic.play();
-        } catch (error) {
-            console.warn('Music playback failed:', error);
+        // Play game music
+        this.playGameMusic();
+    }
+
+    resumeAudioContext() {
+        if (this.sound && this.sound.context) {
+            if (this.sound.context.state === 'suspended') {
+                this.sound.context.resume().then(() => {
+                    console.log('Audio context resumed');
+                    this.playGameMusic();
+                }).catch((error) => {
+                    console.error('Failed to resume audio context:', error);
+                });
+            }
         }
     }
-    
+
+    playGameMusic() {
+        // Ensure we have a sound system and audio context
+        if (!this.sound || !this.sound.context) {
+            console.warn('Sound system not initialized');
+            return;
+        }
+
+        // Check audio context state
+        if (this.sound.context.state === 'suspended') {
+            console.log('Audio context suspended. Waiting for user interaction.');
+            return;
+        }
+
+        try {
+            // Ensure game music asset exists
+            if (!this.cache.audio.exists('game_music')) {
+                console.warn('Game music asset not found');
+                return;
+            }
+
+            // Create music if not already created
+            if (!this.gameMusic) {
+                this.gameMusic = this.sound.add('game_music', {
+                    loop: true,
+                    volume: 0.3
+                });
+            }
+
+            // Play music if not already playing
+            if (!this.gameMusic.isPlaying) {
+                this.gameMusic.play({
+                    loop: true,
+                    volume: 0.3
+                });
+                console.log('Game music started');
+            }
+        } catch (error) {
+            console.error('Error playing game music:', error);
+        }
+    }
+
     update() {
         // Update the player
         this.player.update();

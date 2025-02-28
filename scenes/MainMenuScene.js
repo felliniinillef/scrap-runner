@@ -35,6 +35,20 @@ class MainMenuScene extends Phaser.Scene {
         // Используем AssetGenerator для создания текстур при необходимости
         this.assetGenerator = new AssetGenerator(this);
         
+        // Create background
+        this.createBackground();
+        
+        // Create menu buttons
+        this.createMenuButtons();
+        
+        // Add a global click listener to resume audio context
+        this.input.on('pointerdown', this.resumeAudioContext, this);
+        
+        // Attempt to play background music
+        this.playBackgroundMusic();
+    }
+    
+    createBackground() {
         // Add background
         const background = this.add.image(400, 300, 'menu_background');
         if (!background.texture.key) {
@@ -50,6 +64,18 @@ class MainMenuScene extends Phaser.Scene {
         }
         logo.setScale(0.8);
         
+        // Background animation
+        this.tweens.add({
+            targets: logo,
+            y: 170,
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+    }
+    
+    createMenuButtons() {
         // Add menu buttons
         const startButton = this.add.text(400, 350, 'START GAME', { 
             font: '24px "Courier New"', 
@@ -138,50 +164,56 @@ class MainMenuScene extends Phaser.Scene {
             // Show credits (placeholder)
             console.log('Credits button clicked');
         });
-        
-        // Background animation
-        this.tweens.add({
-            targets: logo,
-            y: 170,
-            duration: 1500,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-        
-        // Add a global click listener to resume audio context
-        this.input.on('pointerdown', () => {
+    }
+    
+    resumeAudioContext() {
+        if (this.sound && this.sound.context) {
             if (this.sound.context.state === 'suspended') {
-                this.sound.context.resume();
+                this.sound.context.resume().then(() => {
+                    console.log('Audio context resumed');
+                    this.playBackgroundMusic();
+                }).catch((error) => {
+                    console.error('Failed to resume audio context:', error);
+                });
             }
-        }, this);
-        
-        // Play background music
-        this.playBackgroundMusic();
+        }
     }
     
     playBackgroundMusic() {
-        // Ensure audio context is resumed on first user interaction
+        // Ensure we have a sound system and audio context
+        if (!this.sound || !this.sound.context) {
+            console.warn('Sound system not initialized');
+            return;
+        }
+
+        // Check audio context state
         if (this.sound.context.state === 'suspended') {
-            this.sound.context.resume();
+            console.log('Audio context suspended. Waiting for user interaction.');
+            return;
         }
 
         try {
-            if (this.cache.audio.exists('menu_music')) {
-                // Check if music is already playing
-                if (!this.menuMusic) {
-                    this.menuMusic = this.sound.add('menu_music', {
-                        loop: true,
-                        volume: 0.5
-                    });
-                }
+            // Ensure menu music asset exists
+            if (!this.cache.audio.exists('menu_music')) {
+                console.warn('Menu music asset not found');
+                return;
+            }
 
-                // Only play if not already playing
-                if (!this.menuMusic.isPlaying) {
-                    this.menuMusic.play();
-                }
-            } else {
-                console.log('Menu music asset not found');
+            // Create music if not already created
+            if (!this.menuMusic) {
+                this.menuMusic = this.sound.add('menu_music', {
+                    loop: true,
+                    volume: 0.5
+                });
+            }
+
+            // Play music if not already playing
+            if (!this.menuMusic.isPlaying) {
+                this.menuMusic.play({
+                    loop: true,
+                    volume: 0.5
+                });
+                console.log('Background music started');
             }
         } catch (error) {
             console.error('Error playing menu music:', error);
