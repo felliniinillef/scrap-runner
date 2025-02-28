@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrap Runner</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #0ff;
+            font-family: 'Courier New', monospace;
+        }
+        #game-container {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    
+    <!-- External Libraries -->
+    <script src="lib/phaser.min.js"></script>
+    <script src="lib/howler.min.js"></script>
+    <script src="lib/rot.min.js"></script>
+    <script src="lib/keydrown.min.js"></script>
+    <script src="lib/hammer.min.js"></script>
+    <script src="lib/simplex-noise.min.js"></script>
+    
+    <!-- Utility Scripts -->
+    <script src="utils/InputManager.js"></script>
+    <script src="utils/SaveManager.js"></script>
+    <script src="utils/MapGenerator.js"></script>
+    <script src="utils/NameGenerator.js"></script>
+    <script src="utils/AssetGenerator.js"></script>
+    
+    <!-- Module Scripts -->
+    <script src="modules/Audio.js"></script>
+    <script src="modules/Graphics.js"></script>
+    <script src="modules/GameCore.js"></script>
+    <script src="modules/Player.js"></script>
+    <script src="modules/Terminal.js"></script>
+    <script src="modules/World.js"></script>
+    <script src="modules/NPC.js"></script>
+    <script src="modules/Resources.js"></script>
+    <script src="modules/UI.js"></script>
+    <script src="modules/Map.js"></script>
+    
+    <!-- Game Scenes -->
+    <script src="scenes/MainMenuScene.js"></script>
+    <script src="scenes/GameScene.js"></script>
+    <script src="scenes/TerminalScene.js"></script>
+    <script src="scenes/InventoryScene.js"></script>
+    <script src="scenes/MapScene.js"></script>
+    
+    <!-- Main Game Script -->
+    <script src="game.js"></script>
+</body>
+</html>
