@@ -149,18 +149,37 @@ class MainMenuScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
         
+        // Add a global click listener to resume audio context
+        this.input.on('pointerdown', () => {
+            if (this.sound.context.state === 'suspended') {
+                this.sound.context.resume();
+            }
+        }, this);
+        
         // Play background music
         this.playBackgroundMusic();
     }
     
     playBackgroundMusic() {
+        // Ensure audio context is resumed on first user interaction
+        if (this.sound.context.state === 'suspended') {
+            this.sound.context.resume();
+        }
+
         try {
             if (this.cache.audio.exists('menu_music')) {
-                this.menuMusic = this.sound.add('menu_music', {
-                    loop: true,
-                    volume: 0.5
-                });
-                this.menuMusic.play();
+                // Check if music is already playing
+                if (!this.menuMusic) {
+                    this.menuMusic = this.sound.add('menu_music', {
+                        loop: true,
+                        volume: 0.5
+                    });
+                }
+
+                // Only play if not already playing
+                if (!this.menuMusic.isPlaying) {
+                    this.menuMusic.play();
+                }
             } else {
                 console.log('Menu music asset not found');
             }
